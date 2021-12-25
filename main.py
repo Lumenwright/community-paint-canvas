@@ -1,51 +1,27 @@
-from typing import Any
 from flask import Flask
-from flask_restful import Resource, Api, reqparse
-import json
+from flask_restful import Api, Resource
+import requests
 import ast
+import pixels
+import html_generator
 
-X_NAME = 'x'
-Y_NAME = 'y'
-RED_NAME = 'r'
-GREEN_NAME = 'g'
-BLUE_NAME = 'b'
+#endpoints
+PIXELS = '/pixels'
+CANVAS = '/canvas'
 
+#REST API
 app = Flask(__name__)
 api = Api(app)
 
-class Pixels(Resource):
+class HtmlCanvas(Resource):
     def get(self):
-        with open('canvas.json', 'r') as f:
-            data = json.load(f)
-        return {'data':data}, 200
-    
-    def post(self):
-        parser = reqparse.RequestParser()  # initialize
+        #GET the canvas and save to var
+        canvas = requests.get(api.url_for())
+        page = lambda current_canvas : html_generator.generate_html(current_canvas)
+        return {'html_page':page(canvas)}, 200 
 
-        parser.add_argument(X_NAME, required=True)  # add args
-        parser.add_argument(Y_NAME, required=True)
-        parser.add_argument(RED_NAME,required=True)
-        parser.add_argument(GREEN_NAME,required=True)
-        parser.add_argument(BLUE_NAME,required=True)
-        
-        args = parser.parse_args()  # parse arguments to dictionary
-        
-        # read our json
-        with open('canvas.json', 'r') as f:
-            data = json.load(f)
-        # add the newly provided values
-        x = int(args[X_NAME])
-        y = int(args[Y_NAME])
-        color = [int(args[RED_NAME]), int(args[GREEN_NAME]), int(args[BLUE_NAME])]
-        data[x][y]=color
-        # save back
-        with open('canvas.json', 'w', newline='') as f:
-           json.dump(data, f, separators=(',',':'))
-
-        return {'data': data}, 200  # return data with 200 OK
-    pass
-
-api.add_resource(Pixels, '/pixels') # entry point for pixels
+api.add_resource(pixels.Pixels, PIXELS) # entry point for pixels
+api.add_resource(HtmlCanvas, CANVAS) # should return the html
 
 if __name__ == '__main__':
     app.run() 
