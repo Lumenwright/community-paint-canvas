@@ -12,7 +12,7 @@ class Pixels(Resource):
     def get(self):
         with open('canvas.json', 'r') as f:
             data = json.load(f)
-        return {'data':data}, 200
+        return data, 200
     
     def post(self):
         parser = reqparse.RequestParser()  # initialize
@@ -27,15 +27,32 @@ class Pixels(Resource):
         
         # read our json
         with open('canvas.json', 'r') as f:
-            data = json.load(f)
+            canvas = json.load(f)
         # add the newly provided values
         x = int(args[X_NAME])
         y = int(args[Y_NAME])
         color = [int(args[RED_NAME]), int(args[GREEN_NAME]), int(args[BLUE_NAME])]
-        data[x][y]=color
+        canvas[x][y]=color
         # save back
         with open('canvas.json', 'w', newline='') as f:
-           json.dump(data, f, separators=(',',':'))
+            f.write("{\"data\":{")
+            #json.dump(data, f, separators=(',',':'))
+            f.write("\"pixels\":{")
+            f.write("\"pixel\":{\"r\":"+str(canvas[0][0][0])+",\"g\":"+str(canvas[0][0][1])+",\"b\":"+str(canvas[0][0][2]))
+            for j in range(1, len(canvas[0])):
+                f.write("},") 
+                f.write("\"pixel\":{\"r\":"+str(canvas[0][j][0])+",\"g\":"+str(canvas[0][j][1])+",\"b\":"+str(canvas[0][j][2]))
+            f.write("}")
+            for i in range(1,len(canvas)):
+                f.write("},\"pixels\":{")
+                f.write("\"pixel\":{\"r\":"+str(canvas[i][0][0])+",\"g\":"+str(canvas[i][0][1])+",\"b\":"+str(canvas[i][0][2]))
+                for k in range(1,len(canvas[i])):
+                    f.write("},") 
+                    f.write("\"pixel\":{\"r\":"+str(canvas[i][k][0])+",\"g\":"+str(canvas[i][k][1])+",\"b\":"+str(canvas[i][k][2]))
+                f.write("}")
+            f.write("}")
+            f.write("}")
+            f.write("}")
 
-        return {'data': data}, 200  # return data with 200 OK
+        return canvas, 200  # return data with 200 OK
     pass
