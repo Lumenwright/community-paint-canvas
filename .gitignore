@@ -114,3 +114,5 @@ dmypy.json
 .pyre/
 
 dont_commit.py
+invoice.json
+canvas.json
