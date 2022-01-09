@@ -3,9 +3,12 @@ from flask_restful import Resource, reqparse
 from flask import Request
 import json
 import canvas as c
+import invoice
 
 #argument name for incoming pixels
 PIXELS_NAME = 'new_pixels'
+TOTAL_NAME = 'total_donate'
+RESPONSE_NAME = 'response'
 
 #json keys
 CANVAS_NAME = 'canvas'
@@ -57,15 +60,20 @@ class Pixels(Resource):
        # dict = Request.get_json(self)  #doesn't have cached_json apparently when using unity post
         parser = reqparse.RequestParser()
         parser.add_argument(PIXELS_NAME)
+
         args = parser.parse_args()
         dict = json.loads(args[PIXELS_NAME])
+        invoice.make_invoice(dict[TOTAL_NAME],dict[RESPONSE_NAME])
+        return dict, 200  # return data with 200 OK
+
+    def resolve_submission(new_pixels):
 
         # read our canvas
         with open('canvas.json', 'r') as f:
             canvas = json.load(f)
         
         #parse the json dictionary and replace the pixels in the canvas
-        new_pixels = dict[PIXELS_NAME]
+
         for i in range(len(new_pixels)):
             np = new_pixels[i][PX_NAME]
             np_x = int(np[X_NAME])
@@ -76,8 +84,7 @@ class Pixels(Resource):
             current_pixel[GREEN_NAME] = np[GREEN_NAME]
             current_pixel[BLUE_NAME] = np[BLUE_NAME]
         # save back
-        c.write_to_json(canvas)          
-        return canvas, 200  # return data with 200 OK
+        c.write_to_json(canvas)
     pass
 
 if(__name__=="__main__"):
