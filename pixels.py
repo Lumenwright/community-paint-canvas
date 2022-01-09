@@ -1,5 +1,6 @@
 from typing import Any
 from flask_restful import Resource, reqparse
+from flask import Request
 import json
 import canvas as c
 
@@ -7,9 +8,9 @@ import canvas as c
 PIXELS_NAME = 'new_pixels'
 
 #json keys
-CANVAS_NAME = 'Canvas'
-ROW_NAME = 'Px_Row'
-PX_NAME = 'Px'
+CANVAS_NAME = 'canvas'
+ROW_NAME = 'px_row'
+PX_NAME = 'px'
 X_NAME = 'x'
 Y_NAME = 'y'
 RED_NAME = 'r'
@@ -53,37 +54,34 @@ class Pixels(Resource):
         return data, 200
     
     def post(self):
-        parser = reqparse.RequestParser()  # initialize
-
+       # dict = Request.get_json(self)  #doesn't have cached_json apparently when using unity post
+        parser = reqparse.RequestParser()
         parser.add_argument(PIXELS_NAME)
-
         args = parser.parse_args()
-        
+        dict = json.loads(args[PIXELS_NAME])
+
         # read our canvas
         with open('canvas.json', 'r') as f:
             canvas = json.load(f)
-        # add the newly provided values
-        dict = json.load(args[PIXELS_NAME])
         
         #parse the json dictionary and replace the pixels in the canvas
-        new_pixels = dict[CANVAS_NAME]
+        new_pixels = dict[PIXELS_NAME]
         for i in range(len(new_pixels)):
-            new_row = new_pixels[i][ROW_NAME]
-            for j in range(len(new_row)):
-                np = new_row[j][PX_NAME]
-                np_x = int(np[X_NAME])
-                np_y = int(np[Y_NAME])
-                current_row = canvas[CANVAS_NAME][np_x][ROW_NAME]
-                current_pixel = current_row[np_y][PX_NAME]
-                current_pixel[RED_NAME] = np[RED_NAME]
-                current_pixel[GREEN_NAME] = np[GREEN_NAME]
-                current_pixel[BLUE_NAME] = np[BLUE_NAME]
+            np = new_pixels[i][PX_NAME]
+            np_x = int(np[X_NAME])
+            np_y = int(np[Y_NAME])
+            current_row = canvas[CANVAS_NAME][np_x][ROW_NAME]
+            current_pixel = current_row[np_y][PX_NAME]
+            current_pixel[RED_NAME] = np[RED_NAME]
+            current_pixel[GREEN_NAME] = np[GREEN_NAME]
+            current_pixel[BLUE_NAME] = np[BLUE_NAME]
         # save back
         c.write_to_json(canvas)          
         return canvas, 200  # return data with 200 OK
     pass
 
-#test
-with open('canvas.json', 'r') as f:
-    canvas = json.load(f)
-print(canvas[CANVAS_NAME][0][ROW_NAME][0][PX_NAME][X_NAME])
+if(__name__=="__main__"):
+    #test
+    with open('canvas.json', 'r') as f:
+        canvas = json.load(f)
+    print(canvas[CANVAS_NAME][0][ROW_NAME][0][PX_NAME][X_NAME])
