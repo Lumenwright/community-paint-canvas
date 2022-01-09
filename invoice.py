@@ -2,12 +2,13 @@ import json
 import requests
 import dont_commit
 import pixels
+from poller import start_polling
 
 INVOICE_FILE = 'invoice.json'
 index = 0
 
-def make_invoice(total_donate, response):
-    s = {response:{"total_donate": total_donate}}
+def make_invoice(total_donate, response, new_pixels):
+    s = {response:{"total_donate": total_donate, "new_pixels":new_pixels}}
     with open(INVOICE_FILE,'w', newline='') as f:
         json.dump(s, f)
 
@@ -23,21 +24,27 @@ def resolve_invoice():
     with open(INVOICE_FILE, 'r+') as f:
         invoice = json.load(f)
         found = False
-        while(not found):
-            for donation in donations:
-                for entry in invoice:
-                    code = donation["comment"]
-                    if(entry==code):
-                        print(code)
-                        found = True
-                        break
+        matching_entry_pixels = {}
+        matching_entry =""
+
+        for donation in donations:
+            for entry in invoice:
+                code = donation["comment"]
+                if(entry==code):
+                    found = True
+                    matching_entry = entry
+                    matching_entry_pixels = invoice[entry][pixels.PIXELS_NAME]
+                    break
         if(found):
+            print("resolving invoice:"+matching_entry)
+            pixels.Pixels.resolve_submission(matching_entry_pixels)
             invoice.pop(entry)
             f.seek(0)
             json.dump(invoice,f)
             f.truncate()
         else:
             print("couldn't find match")
+            start_polling(resolve_invoice)
 
 #if(__name__ == '__main__'):
     #make_invoice(1.00, "test")

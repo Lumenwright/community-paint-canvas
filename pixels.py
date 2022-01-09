@@ -4,6 +4,7 @@ from flask import Request
 import json
 import canvas as c
 import invoice
+from poller import start_polling
 
 #argument name for incoming pixels
 PIXELS_NAME = 'new_pixels'
@@ -63,11 +64,12 @@ class Pixels(Resource):
 
         args = parser.parse_args()
         dict = json.loads(args[PIXELS_NAME])
-        invoice.make_invoice(dict[TOTAL_NAME],dict[RESPONSE_NAME])
+
+        invoice.make_invoice(dict[TOTAL_NAME],dict[RESPONSE_NAME],dict[PIXELS_NAME])
+        invoice.resolve_invoice()
         return dict, 200  # return data with 200 OK
 
     def resolve_submission(new_pixels):
-
         # read our canvas
         with open('canvas.json', 'r') as f:
             canvas = json.load(f)

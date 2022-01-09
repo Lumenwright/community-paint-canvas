@@ -20,9 +20,16 @@ class HtmlCanvas(Resource):
         page = lambda current_canvas : html_generator.generate_html(current_canvas)
         return {'html_page':page(canvas)}, 200 
 
+class Index(Resource):
+    @app.route('/')
+    def index():
+        with open("index.html", 'r') as f:
+            s = f.read()
+            return s, 200
+
 api.add_resource(pixels.Pixels, PIXELS) # entry point for pixels
 api.add_resource(pixels.Pixel, PIXELS)
-api.add_resource(HtmlCanvas, CANVAS) # should return the html
+#api.add_resource(HtmlCanvas, CANVAS) # should return the html
 
 if __name__ == '__main__':
     canvas.reset_canvas()
