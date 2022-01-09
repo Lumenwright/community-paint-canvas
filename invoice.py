@@ -39,6 +39,6 @@ def resolve_invoice():
         else:
             print("couldn't find match")
 
-if(__name__ == '__main__'):
+#if(__name__ == '__main__'):
     #make_invoice(1.00, "test")
     #resolve_invoice()
