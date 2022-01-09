@@ -78,7 +78,7 @@ def reset_canvas():
         row_dict = {}
         row_list = []
         for i in range(NUM_ROW):
-            color = {pixels.RED_NAME:0.0, pixels.GREEN_NAME:1.0, pixels.BLUE_NAME:0.0}
+            color = {pixels.X_NAME:j, pixels.Y_NAME:i, pixels.RED_NAME:0.0, pixels.GREEN_NAME:1.0, pixels.BLUE_NAME:0.0}
             px={}
             px[pixels.PX_NAME] = color
             row_list.append(px)
