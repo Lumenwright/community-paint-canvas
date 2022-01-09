@@ -1,7 +1,7 @@
 from flask import Flask
 from flask_restful import Api, Resource
 import requests
-import ast
+import canvas
 import pixels
 import html_generator
 
@@ -21,7 +21,9 @@ class HtmlCanvas(Resource):
         return {'html_page':page(canvas)}, 200 
 
 api.add_resource(pixels.Pixels, PIXELS) # entry point for pixels
+api.add_resource(pixels.Pixel, PIXELS)
 api.add_resource(HtmlCanvas, CANVAS) # should return the html
 
 if __name__ == '__main__':
+    canvas.reset_canvas()
     app.run() 
