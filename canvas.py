@@ -60,7 +60,7 @@ def reset_canvas():
     for j in range(NUM_COL):
         row = []
         for i in range(NUM_ROW):
-            color = [0,255,0]
+            color = [0.0,1.0,0.0]
             row.append(color)
         canvas.append(row)
 

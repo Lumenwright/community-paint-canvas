@@ -4,7 +4,7 @@ import json
 import canvas as c
 
 #argument name for incoming pixels
-PIXELS_NAME = 'new pixels'
+PIXELS_NAME = 'new_pixels'
 
 #json keys
 CANVAS_NAME = 'Canvas'
