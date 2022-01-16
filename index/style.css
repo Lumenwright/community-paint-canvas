@@ -13,7 +13,3 @@
 .pixel#selected {
     background-color:gold;
 }
-
-.row {
-    display: table-row;
-}

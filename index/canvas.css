@@ -1,0 +1,7 @@
+.canvas {
+width: 400px;
+height: 400px;
+display: inline-block;
+background-color:gold;
+border: 10px solid grey;
+}
