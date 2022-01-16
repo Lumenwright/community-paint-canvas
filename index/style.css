@@ -1,0 +1,19 @@
+.pixel {
+    display: table-cell;
+    position: relative;
+    width: 5px;
+    height: 5px;
+    border: 1px solid dimgray;
+}
+
+.pixel#default {
+    background-color: chartreuse;
+}
+
+.pixel#selected {
+    background-color:gold;
+}
+
+.row {
+    display: table-row;
+}

@@ -1,16 +1,17 @@
-from typing import List
-from htmlBuilder.attributes import Class
-from htmlBuilder.tags import Html, Head, Title, Body, Nav, Div, Footer, Ul, Li
+from typing import List, Text
+from htmlBuilder.attributes import Class, Href, Rel, Style,Type, Id
+from htmlBuilder.tags import Html, Head, Script, Title, Body, Div, Footer, Link
 import canvas
+import pixels
 
-def generate_html(canvas: List):
+def generate_html(canvas):
     html = Html([],
-        Head([],
-            Title([], "Community Paint Canvas")
+        Head([],[Link([Rel("stylesheet"),Type("text/css"), Href("style.css")]),
+            Title([], "Community Paint Canvas")]
         ),
         Body([],
-            [Div([],
-                [Div([], str(px_y))
+            [Div([Class("row")],
+                [Div([Class("pixel"), Id("default") if px_y[pixels.GREEN_NAME] == 0.0 else Id("selected")], [])
                 for px_y in px_x]
             )
             for px_x in canvas]
@@ -21,6 +22,9 @@ def generate_html(canvas: List):
 
 def reset_index():
     c = canvas.reset_canvas()
-    with open("index.html", 'w') as f:
+    with open("index/index.html", 'w') as f:
         s = generate_html(c)
         f.write(s)
+
+if(__name__ == "__main__"):
+    reset_index()

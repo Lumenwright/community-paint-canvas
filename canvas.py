@@ -2,8 +2,8 @@ import pixels
 import json
 
 FILE_PATH = 'canvas.json'
-NUM_COL = 10
-NUM_ROW = 10
+NUM_COL = 400
+NUM_ROW = 400
 
 def write_to_json(canvas):
     with open(FILE_PATH, 'w', newline='') as f:
