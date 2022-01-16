@@ -15,7 +15,7 @@ api.add_resource(pixels.Pixel, PIXELS)
 
 @app.route('/')
 def index():
-    with open("index.html", 'r') as f:
+    with open("index/index.html", 'r') as f:
         s= f.read()
         return s
 
