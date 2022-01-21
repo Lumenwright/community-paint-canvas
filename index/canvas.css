@@ -1,7 +1,7 @@
 .canvas {
-width: 400px;
-height: 400px;
-display: inline-block;
-background-color:gold;
+grid-template-rows: repeat(400,1px);
+grid-template-columns: repeat(400,1px);
+display: grid;
+background-color:chartreuse;
 border: 10px solid grey;
 }

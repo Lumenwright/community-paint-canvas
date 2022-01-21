@@ -1,5 +1,4 @@
-from typing import List, Text
-from htmlBuilder.attributes import Class, Href, Rel, Style,Type, Id, Width, Height
+from htmlBuilder.attributes import Class, Href, Rel, Style,Type, Onclick, Src, Id
 from htmlBuilder.tags import Html, Head, Script, Title, Body, Div, Footer, Link
 import canvas
 import pixels
@@ -13,7 +12,8 @@ def generate_html(canvas):
             Title([], "Community Paint Canvas")]
         ),
         Body([],
-            [Div([Class("canvas")])
+            [Div([Class("canvas"), Id("canvas")]),
+            Script([Src("script.js")])
             ]
         )
     )
@@ -22,9 +22,8 @@ def generate_html(canvas):
 
 def generate_css(canvas):
     with open("index/canvas.css", 'w') as f:
-        #w = "top: 0;\nleft: 0;\nright: 0;\nbottom: 0"
-        w = "width: "+str(len(canvas))+"px;\nheight: "+str(len(canvas[0]))+"px;\n"
-        s = ".canvas {\n"+w+"display: inline-block;\n"+"background-color:gold;\n"+"border: 10px solid grey;\n"+"}"
+        w = "grid-template-rows: repeat("+str(len(canvas))+",1px);\ngrid-template-columns: repeat("+str(len(canvas[0]))+",1px);\n"
+        s = ".canvas {\n"+w+"display: grid;\n"+"background-color:chartreuse;\n"+"border: 10px solid grey;\n"+"}"
         f.write(s)
 
 def reset_index():
