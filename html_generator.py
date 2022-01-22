@@ -1,5 +1,6 @@
-from htmlBuilder.attributes import Class, Href, Rel, Style,Type, Onclick, Src, Id
-from htmlBuilder.tags import Html, Head, Script, Title, Body, Div, Footer, Link
+from turtle import width
+from htmlBuilder.attributes import Class, Href, Rel, Style,Type, Onclick, Src, Id, Width, Height
+from htmlBuilder.tags import Html, Head, Script, Title, Body, Div, Footer, Link,Canvas
 import canvas
 import pixels
 
@@ -8,13 +9,13 @@ CANVAS_STYLE = "canvas.css"
 def generate_html(canvas):
     html = Html([],
         Head([],[Link([Rel("stylesheet"),Type("text/css"), Href("style.css")]),
-        Link([Rel("stylesheet"),Type("text/css"),Href(CANVAS_STYLE)]),
+        Script([Type("text/javascript"), Href("canvas.json")]),
             Title([], "Community Paint Canvas")]
         ),
         Body([],
-            [Div([Class("canvas"), Id("canvas")]),
-            Script([Src("script.js")])
-            ]
+            [
+            Canvas([Id("canvas"), Width(len(canvas)), Height(len(canvas[0])) ],"An interactive shared paint canvas"),
+            Script([Src("script.js")])            ]
         )
     )
 
@@ -30,7 +31,7 @@ def generate_css(canvas):
 
 def reset_index():
     c = canvas.reset_canvas()
-    generate_css(c)
+    #generate_css(c)
     with open("index/index.html", 'w') as f:
         s = generate_html(c)
         f.write(s)

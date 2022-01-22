@@ -1,7 +1,7 @@
 import pixels
 import json
 
-FILE_PATH = 'canvas.json'
+FILE_PATH = 'index/canvas.json'
 NUM_COL = 400
 NUM_ROW = 400
 

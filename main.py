@@ -19,6 +19,24 @@ def index():
         s= f.read()
         return s
 
+@app.route('/style.css')
+def style():
+    with open("index/style.css", 'r') as f:
+        s=f.read()
+        return s
+
+@app.route('/script.js')
+def script():
+    with open("index/script.js", 'r') as f:
+        s=f.read()
+        return s
+
+@app.route('/canvas.json')
+def json_canvas():
+    with open("index/canvas.json", 'r') as f:
+        s=f.read()
+        return s
+
 if __name__ == '__main__':
     html_generator.reset_index()
     app.run() 
