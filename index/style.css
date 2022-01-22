@@ -1,5 +1,6 @@
 .pixel {
     position: absolute;
-    background-color:gold;
-    border: 1px solid dimgray;
+    background-color:red;
+    min-width: 1px;
+    min-height: 1px;
 }

@@ -21,9 +21,11 @@ def generate_html(canvas):
     return html.render(pretty=True, doctype=True) # pass doctype=True to add a document declaration
 
 def generate_css(canvas):
+    num_row = len(canvas)
+    num_col = len(canvas[0])
     with open("index/canvas.css", 'w') as f:
-        w = "grid-template-rows: repeat("+str(len(canvas))+",1px);\ngrid-template-columns: repeat("+str(len(canvas[0]))+",1px);\n"
-        s = ".canvas {\n"+w+"display: grid;\n"+"background-color:chartreuse;\n"+"border: 10px solid grey;\n"+"}"
+        w = "grid-template-rows: repeat("+str(num_row-1)+",1fr);\ngrid-template-columns: repeat("+str(num_col-1)+",1fr);\nmin-width:"+str(num_row)+"px;\nmin-height:"+str(num_col)+"px;"
+        s = ".canvas {\n"+w+"display: grid;\nposition:relative;\nbackground-color:chartreuse;\nborder: 10px solid grey;\n}"
         f.write(s)
 
 def reset_index():
