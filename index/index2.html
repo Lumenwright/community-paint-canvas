@@ -11,10 +11,21 @@
         
       <h2>{{ message }}</h2> 
       <canvas @mousedown="startPainting" @mouseup="finishedPainting" @mousemove="draw" id="canvas"></canvas>
-      <button @click="getCanvasData" id="button">Get Total Pixels</button>
+      <p>{{ status }}</p>
+      <p>{{ totalPixels }}</p>
+      <button id="button">Get Total Pixels</button>
      </div>
+     <div id="watch-example">
+      <p>
+        Ask a yes/no question:
+        <input v-model="question">
+      </p>
+      <p>{{ answer }}</p>
+    </div>
   </body>
   <script type='text/javascript' href='canvas.json'></script>
   <script src='vue.js'></script>
+  <script src="https://cdn.jsdelivr.net/npm/axios@0.12.0/dist/axios.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/lodash@4.13.1/lodash.min.js"></script>
   <script src='script2.js'></script>
 </html>
