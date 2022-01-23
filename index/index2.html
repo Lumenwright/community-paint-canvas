@@ -8,8 +8,11 @@
   </head>
   <body>
     <div id="app">
-        {{ message }}
-      </div>
+        
+      <h2>{{ message }}</h2> 
+      <canvas @mousedown="startPainting" @mouseup="finishedPainting" @mousemove="draw"  id="canvas"></canvas>
+      
+     </div>
   </body>
   <script type='text/javascript' href='canvas.json'></script>
   <script src='vue.js'></script>
