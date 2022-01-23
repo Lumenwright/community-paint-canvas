@@ -4,6 +4,7 @@ import datetime
 import json
 import invoice
 from poller import start_polling
+from os.path import isfile
 
 CANVAS_JSON = 'index/canvas.json'
 HISTORY_JSON = 'history/history_'
@@ -16,44 +17,48 @@ num_submits = 0
 
 class Pixels(Resource):
     def resolve_submission(self, new_pixels):
-        try:#replace the canvas with the new one and save the history
+        np = json.loads(new_pixels)
+
+        if isfile(CANVAS_JSON):
             with open(CANVAS_JSON, 'r') as f:
-                old = json.load(f)
-
-            #append the total number of histories to the filename
-            #and then save the current canvas state to it
-            global num_submits
-            num_submits+=1
-            fn = HISTORY_JSON+datetime.datetime.now().strftime(DATE_FORMAT)+str(num_submits)+".json"
-            with open(fn, 'a') as g:
-                json.dump(old, g)
-            
-            # save the new state 
-            new_state = []
-            for key in new_pixels:
-                for item in old:
-                    new_item = item
-                    if item["num"] == key["num"]:
-                        new_item["r"] == key["r"]
-                        new_item["g"] == key["g"]
-                        new_item["b"] == key["b"]
-                        new_item["a"] == key["a"]
-                    new_state.append(new_item)
-                else:
-                    new_state.append(key)
-            print(new_state)
-            with open(CANVAS_JSON, 'w') as h:
-                json.dump(new_state, h)
-
-        except:
+                olds = json.load(f)[PIXELS_NAME]
+                old = json.loads(olds)
+                print("old:"+old[0]["num"])
+        else:
             print("creating new canvas state")
-
             with open(CANVAS_JSON, 'w') as h:
-                json.dump(new_pixels,h)
+                json.dump({PIXELS_NAME:json.dumps(np)},h)
+                return
+        #append the total number of histories to the filename
+        #and then save the current canvas state to it
+        global num_submits
+        num_submits+=1
+        fn = HISTORY_JSON+datetime.datetime.now().strftime(DATE_FORMAT)+str(num_submits)+".json"
+        with open(fn, 'a') as g:
+            json.dump(old, g)
+            
+        # save the new state 
+        new_state = []
+        for i in range(0,len(np)-1):
+            key = np[i]
+            for j in range(0,len(old)-1):
+                item = old[j]
+                new_item = item
+                if item["num"] == key["num"]:
+                    new_item["r"] == key["r"]
+                    new_item["g"] == key["g"]
+                    new_item["b"] == key["b"]
+                    new_item["a"] == key["a"]
+                new_state.append(new_item)
+            else:
+                new_state.append(key)
+        with open(CANVAS_JSON, 'w') as h:
+            json.dump({PIXELS_NAME:json.dumps(new_state)}, h)
+
 
     def get(self):
         with open(CANVAS_JSON, 'r') as f:
-            data = json.load(f)
+            data = f.read()
         return data, 200
     
     def post(self):
@@ -64,5 +69,5 @@ class Pixels(Resource):
         dict = parser.parse_args()
         #invoice.make_invoice(dict[TOTAL_NAME],dict[RESPONSE_NAME],dict[PIXELS_NAME])
         #invoice.resolve_invoice()
-        self.resolve_submission(json.loads(dict[PIXELS_NAME]))
+        self.resolve_submission(dict[PIXELS_NAME])
         return dict, 200  # return data with 200 OK

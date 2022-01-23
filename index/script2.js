@@ -96,14 +96,15 @@ var app = new Vue({
     this.req = new XMLHttpRequest();
     this.req.onload= function(){
       //var canvasData = c.createImageData(array);
-      var json_obj = JSON.parse(this.responseText);
-      console.log(json_obj["3"]);
-      /*for(item in json_string){
+      var json_obj = JSON.parse(JSON.parse(this.responseText));
+      var json_obj2 = JSON.parse(json_obj.new_pixels);
+      /*for(let j=0; j<json_obj.length; j++){
         for(let i = 0; i<canvasData.data.length; i++){
-          canvasData[i] = item;
+          json_obj[j]
         }
-      }
-      c.putImageData(canvasData,0,0);*/
+      }*/
+      console.log(json_obj2)
+      //c.putImageData(canvasData,0,0);
     };
     this.req.open("GET", pxEndpoint);
     this.req.send();
