@@ -95,18 +95,22 @@ var app = new Vue({
     var array = c.getImageData(0,0,this.canvas.height,this.canvas.width);
     this.req = new XMLHttpRequest();
     this.req.onload= function(){
-      //var canvasData = c.createImageData(array);
-      var json_obj = JSON.parse(JSON.parse(this.responseText));
-      var json_obj2 = JSON.parse(json_obj.new_pixels);
-      /*for(let j=0; j<json_obj.length; j++){
-        for(let i = 0; i<canvasData.data.length; i++){
-          json_obj[j]
-        }
-      }*/
-      console.log(json_obj2)
-      //c.putImageData(canvasData,0,0);
+      var canvasData = c.createImageData(array);
+      console.log(this.responseText);
+      var json_obj = JSON.parse(this.responseText);
+      var json_obj2 = JSON.parse(json_obj);
+      var json_obj3 = JSON.parse(json_obj2.new_pixels);
+      for(let j=0; j<json_obj3.length; j++){
+          let px = json_obj3[j];
+          let n = px.num;
+          canvasData[n] = px.r;
+          canvasData[n+1] = px.g;
+          canvasData[n+2] = px.b;
+          canvasData[n+3] = px.a;
+      }
+      c.putImageData(canvasData,0,0);
     };
-    this.req.open("GET", pxEndpoint);
+    this.req.open("GET", "canvas.json");
     this.req.send();
   },
   watch:{

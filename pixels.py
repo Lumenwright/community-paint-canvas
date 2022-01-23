@@ -23,12 +23,13 @@ class Pixels(Resource):
             with open(CANVAS_JSON, 'r') as f:
                 olds = json.load(f)[PIXELS_NAME]
                 old = json.loads(olds)
-                print("old:"+old[0]["num"])
+            f.close()
         else:
             print("creating new canvas state")
             with open(CANVAS_JSON, 'w') as h:
                 json.dump({PIXELS_NAME:json.dumps(np)},h)
-                return
+            h.close()
+            return
         #append the total number of histories to the filename
         #and then save the current canvas state to it
         global num_submits
@@ -36,6 +37,7 @@ class Pixels(Resource):
         fn = HISTORY_JSON+datetime.datetime.now().strftime(DATE_FORMAT)+str(num_submits)+".json"
         with open(fn, 'a') as g:
             json.dump(old, g)
+        g.close()
             
         # save the new state 
         new_state = []
@@ -54,11 +56,12 @@ class Pixels(Resource):
                 new_state.append(key)
         with open(CANVAS_JSON, 'w') as h:
             json.dump({PIXELS_NAME:json.dumps(new_state)}, h)
-
+        h.close()
 
     def get(self):
         with open(CANVAS_JSON, 'r') as f:
             data = f.read()
+        f.close()
         return data, 200
     
     def post(self):

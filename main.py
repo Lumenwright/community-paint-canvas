@@ -38,6 +38,7 @@ def vue():
 @app.route('/canvas.json')
 def json_canvas():
     with open("index/canvas.json", 'r') as f:
+        print("reading canvas...")
         s=f.read()
         return s
 
