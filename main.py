@@ -42,9 +42,4 @@ def json_canvas():
         return s
 
 if __name__ == '__main__':
-    #initialize the canvas
-    with open("canvas copy.json", 'r') as g:
-        copy = g.read()
-    with open(pixels.CANVAS_JSON, 'w') as f:
-        f.write(copy)
     app.run() 
