@@ -15,11 +15,11 @@ api.add_resource(pixels.Pixel, PIXELS)
 
 @app.route('/')
 def index():
-    with open("index/index.html", 'r') as f:
+    with open("index/index2.html", 'r') as f:
         s= f.read()
         return s
 
-@app.route('/', methods=['post'])
+@app.route('/text', methods=['post'])
 def post():
     textResponse = request.form['description']
     numPx = request.form['numPx']
@@ -32,9 +32,15 @@ def style():
         s=f.read()
         return s
 
-@app.route('/script.js')
+@app.route('/script2.js')
 def script():
-    with open("index/script.js", 'r') as f:
+    with open("index/script2.js", 'r') as f:
+        s=f.read()
+        return s
+
+@app.route('/vue.js')
+def vue():
+    with open("index/vue.js", 'r') as f:
         s=f.read()
         return s
 
@@ -45,5 +51,5 @@ def json_canvas():
         return s
 
 if __name__ == '__main__':
-    html_generator.reset_index()
+    #html_generator.reset_index()
     app.run() 

@@ -14,6 +14,7 @@ def generate_html(canvas):
     html = Html([],
         Head([],[Link([Rel("stylesheet"),Type("text/css"), Href("style.css")]),
         Script([Type("text/javascript"), Href("canvas.json")]),
+        Script([Src("vue.js")]),
             Title([], "Community Paint Canvas")]
         ),
         Body([],
