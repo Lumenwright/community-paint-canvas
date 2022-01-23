@@ -2,6 +2,13 @@ from flask import Flask, request
 from flask_restful import Api, reqparse
 import pixels
 
+#firebase auth
+import firebase_admin
+from firebase_admin import credentials
+
+cred = credentials.Certificate("community-paint-canvas-firebase-adminsdk-yq2qs-1f670317bb.json")
+firebase_admin.initialize_app(cred)
+
 #endpoints
 PIXELS = '/pixels'
 
