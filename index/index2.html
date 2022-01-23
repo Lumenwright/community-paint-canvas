@@ -13,19 +13,17 @@
       <canvas @mousedown="startPainting" @mouseup="finishedPainting" @mousemove="draw" id="canvas"></canvas>
       <p>{{ status }}</p>
       <p>{{ totalPixels }}</p>
-      <button id="button">Get Total Pixels</button>
+      <form id="submission">
+        <label for="text_response">Describe what you drew and copy the text into your Tiltify donation comment:</label>
+        <br/>
+        <textarea id="text_response" name="text_response" v-model="textresponse" placeholder="A dog"></textarea>
+        <br/>
+        </form>
+        <button id='submit_button' name='new_pixels' @click="submit">Submit your drawing!</button>
      </div>
-     <div id="watch-example">
-      <p>
-        Ask a yes/no question:
-        <input v-model="question">
-      </p>
-      <p>{{ answer }}</p>
-    </div>
   </body>
   <script type='text/javascript' href='canvas.json'></script>
   <script src='vue.js'></script>
-  <script src="https://cdn.jsdelivr.net/npm/axios@0.12.0/dist/axios.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/lodash@4.13.1/lodash.min.js"></script>
   <script src='script2.js'></script>
 </html>

@@ -1,97 +1,49 @@
-from typing import Any
+from flask import request
 from flask_restful import Resource, reqparse
-from flask import Request
+import datetime
 import json
-import canvas as c
 import invoice
 from poller import start_polling
 
+CANVAS_JSON = 'index/canvas.json'
+HISTORY_JSON = 'history/history_'
+DATE_FORMAT = "%b%d%y-%H%M%S_"
 #argument name for incoming pixels
 PIXELS_NAME = 'new_pixels'
 TOTAL_NAME = 'total_donate'
-RESPONSE_NAME = 'response'
-
-#json keys
-CANVAS_NAME = 'canvas'
-ROW_NAME = 'px_row'
-PX_NAME = 'px'
-X_NAME = 'x'
-Y_NAME = 'y'
-RED_NAME = 'r'
-GREEN_NAME = 'g'
-BLUE_NAME = 'b'
-
-class Pixel(Resource):
-    def get(self):
-        with open('canvas.json', 'r') as f:
-            data = json.load(f)
-        return data, 200
-    
-    def post(self):
-        parser = reqparse.RequestParser()  # initialize
-
-        parser.add_argument(X_NAME, required=True)  # add args
-        parser.add_argument(Y_NAME, required=True)
-        parser.add_argument(RED_NAME,required=True)
-        parser.add_argument(GREEN_NAME,required=True)
-        parser.add_argument(BLUE_NAME,required=True)
-        
-        args = parser.parse_args()  # parse arguments to dictionary
-        
-        # read our canvas
-        with open('canvas.json', 'r') as f:
-            canvas = json.load(f)
-        # add the newly provided values
-        x = int(args[X_NAME])
-        y = int(args[Y_NAME])
-        color = [int(args[RED_NAME]), int(args[GREEN_NAME]), int(args[BLUE_NAME])]
-        canvas[x][y]=color
-        # save back
-        c.write_to_json(canvas)          
-        return canvas, 200  # return data with 200 OK
-    pass
+RESPONSE_NAME = 'text_response'
+num_submits = 0
 
 class Pixels(Resource):
-    def resolve_submission(new_pixels):
-        # read our canvas
-        with open('canvas.json', 'r') as f:
-            canvas = json.load(f)
-        
-        #parse the json dictionary and replace the pixels in the canvas
+    def resolve_submission(self, new_pixels):       
+        #replace the canvas with the new one and save the history
+        with open(CANVAS_JSON, 'r') as f:
+            old = json.load(f)
 
-        for i in range(len(new_pixels)):
-            np = new_pixels[i][PX_NAME]
-            np_x = int(np[X_NAME])
-            np_y = int(np[Y_NAME])
-            current_row = canvas[CANVAS_NAME][np_x][ROW_NAME]
-            current_pixel = current_row[np_y][PX_NAME]
-            current_pixel[RED_NAME] = np[RED_NAME]
-            current_pixel[GREEN_NAME] = np[GREEN_NAME]
-            current_pixel[BLUE_NAME] = np[BLUE_NAME]
-        # save back
-        c.write_to_json(canvas)
+        #append the total number of histories to the filename
+        #and then save the current canvas state to it
+        global num_submits
+        num_submits+=1
+        fn = HISTORY_JSON+datetime.datetime.now().strftime(DATE_FORMAT)+str(num_submits)+".json"
+        with open(fn, 'a') as g:
+            json.dump(old, g)
+        
+        # save the new state 
+        with open(CANVAS_JSON, 'w') as h:
+            json.dump(new_pixels, h)
 
     def get(self):
-        with open('canvas.json', 'r') as f:
+        with open(CANVAS_JSON, 'r') as f:
             data = json.load(f)
         return data, 200
     
     def post(self):
-       # dict = Request.get_json(self)  #doesn't have cached_json apparently when using unity post
         parser = reqparse.RequestParser()
         parser.add_argument(PIXELS_NAME)
-        parser.add_argument(TOTAL_NAME)
+        #parser.add_argument(TOTAL_NAME)
         parser.add_argument(RESPONSE_NAME)
-
         dict = parser.parse_args()
-
         #invoice.make_invoice(dict[TOTAL_NAME],dict[RESPONSE_NAME],dict[PIXELS_NAME])
         #invoice.resolve_invoice()
         self.resolve_submission(dict[PIXELS_NAME])
         return dict, 200  # return data with 200 OK
-
-if(__name__=="__main__"):
-    #test
-    with open('canvas.json', 'r') as f:
-        canvas = json.load(f)
-    print(canvas[CANVAS_NAME][0][ROW_NAME][0][PX_NAME][X_NAME])

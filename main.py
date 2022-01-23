@@ -1,6 +1,5 @@
 from flask import Flask, request
 from flask_restful import Api, reqparse
-import html_generator
 import pixels
 
 #endpoints
@@ -11,20 +10,12 @@ app = Flask(__name__)
 api = Api(app)
 
 api.add_resource(pixels.Pixels, PIXELS) # entry point for pixels
-api.add_resource(pixels.Pixel, PIXELS)
 
 @app.route('/')
 def index():
     with open("index/index2.html", 'r') as f:
         s= f.read()
         return s
-
-@app.route('/text', methods=['post'])
-def post():
-    textResponse = request.form['description']
-    numPx = request.form['numPx']
-    dict_json = {pixels.PIXELS_NAME:numPx, pixels.RESPONSE_NAME:textResponse}
-    return dict_json, 200
 
 @app.route('/style.css')
 def style():
@@ -51,5 +42,9 @@ def json_canvas():
         return s
 
 if __name__ == '__main__':
-    #html_generator.reset_index()
+    #initialize the canvas
+    with open("canvas copy.json", 'r') as g:
+        copy = g.read()
+    with open(pixels.CANVAS_JSON, 'w') as f:
+        f.write(copy)
     app.run() 
