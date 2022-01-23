@@ -1,12 +1,16 @@
+from tokenize import Name
 from turtle import width
-from htmlBuilder.attributes import Class, Href, Rel, Style,Type, Onclick, Src, Id, Width, Height
-from htmlBuilder.tags import Html, Head, Script, Title, Body, Div, Footer, Link,Canvas
+from types import MethodDescriptorType
+from htmlBuilder.attributes import Class, Href, Rel, Onclick,Type, Action, Src, Id, Width, Height, Name as N, Method, Value
+from htmlBuilder.tags import Html, Head, Script, Title, Body, Div, Footer, Link,Canvas, Form, Input, Label
 import canvas
+from dont_commit import ID
 import pixels
 
 CANVAS_STYLE = "canvas.css"
 
 def generate_html(canvas):
+    readstr = "ReadCanvasData("+str(len(canvas))+","+str(len(canvas[0]))+")"
     html = Html([],
         Head([],[Link([Rel("stylesheet"),Type("text/css"), Href("style.css")]),
         Script([Type("text/javascript"), Href("canvas.json")]),
@@ -15,8 +19,15 @@ def generate_html(canvas):
         Body([],
             [
             Canvas([Id("canvas"), Width(len(canvas)), Height(len(canvas[0])) ],"An interactive shared paint canvas"),
-            Script([Src("script.js")])            ]
-        )
+            Script([Src("script.js")]),
+            Form([Id("Submission"),Action("/"), Method("POST")],[
+                Label([],["Describe your drawing:"]),
+                Input([Type("text"), Id("description"), N("description")]),
+                Input([Type("hidden"), Id("numPx"), N("numPx"), Value(readstr)]),
+                Input([Type("submit"),Id("submit_button"),N("submit"), Value("Submit"), Onclick("formSubmit()")])
+            ])
+            ]
+            )
     )
 
     return html.render(pretty=True, doctype=True) # pass doctype=True to add a document declaration

@@ -52,23 +52,6 @@ class Pixel(Resource):
     pass
 
 class Pixels(Resource):
-    def get(self):
-        with open('canvas.json', 'r') as f:
-            data = json.load(f)
-        return data, 200
-    
-    def post(self):
-       # dict = Request.get_json(self)  #doesn't have cached_json apparently when using unity post
-        parser = reqparse.RequestParser()
-        parser.add_argument(PIXELS_NAME)
-
-        args = parser.parse_args()
-        dict = json.loads(args[PIXELS_NAME])
-
-        invoice.make_invoice(dict[TOTAL_NAME],dict[RESPONSE_NAME],dict[PIXELS_NAME])
-        invoice.resolve_invoice()
-        return dict, 200  # return data with 200 OK
-
     def resolve_submission(new_pixels):
         # read our canvas
         with open('canvas.json', 'r') as f:
@@ -87,7 +70,25 @@ class Pixels(Resource):
             current_pixel[BLUE_NAME] = np[BLUE_NAME]
         # save back
         c.write_to_json(canvas)
-    pass
+
+    def get(self):
+        with open('canvas.json', 'r') as f:
+            data = json.load(f)
+        return data, 200
+    
+    def post(self):
+       # dict = Request.get_json(self)  #doesn't have cached_json apparently when using unity post
+        parser = reqparse.RequestParser()
+        parser.add_argument(PIXELS_NAME)
+        parser.add_argument(TOTAL_NAME)
+        parser.add_argument(RESPONSE_NAME)
+
+        dict = parser.parse_args()
+
+        #invoice.make_invoice(dict[TOTAL_NAME],dict[RESPONSE_NAME],dict[PIXELS_NAME])
+        #invoice.resolve_invoice()
+        self.resolve_submission(dict[PIXELS_NAME])
+        return dict, 200  # return data with 200 OK
 
 if(__name__=="__main__"):
     #test

@@ -1,5 +1,5 @@
-from flask import Flask
-from flask_restful import Api
+from flask import Flask, request
+from flask_restful import Api, reqparse
 import html_generator
 import pixels
 
@@ -18,6 +18,13 @@ def index():
     with open("index/index.html", 'r') as f:
         s= f.read()
         return s
+
+@app.route('/', methods=['post'])
+def post():
+    textResponse = request.form['description']
+    numPx = request.form['numPx']
+    dict_json = {pixels.PIXELS_NAME:numPx, pixels.RESPONSE_NAME:textResponse}
+    return dict_json, 200
 
 @app.route('/style.css')
 def style():
