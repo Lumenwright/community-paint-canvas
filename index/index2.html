@@ -10,8 +10,8 @@
     <div id="app">
         
       <h2>{{ message }}</h2> 
-      <canvas @mousedown="startPainting" @mouseup="finishedPainting" @mousemove="draw"  id="canvas"></canvas>
-      
+      <canvas @mousedown="startPainting" @mouseup="finishedPainting" @mousemove="draw" id="canvas"></canvas>
+      <button @click="getCanvasData" id="button">Get Total Pixels</button>
      </div>
   </body>
   <script type='text/javascript' href='canvas.json'></script>

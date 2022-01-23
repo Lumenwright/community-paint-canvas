@@ -1,7 +1,7 @@
 var app = new Vue({
     el: '#app',
     data: {
-      message: 'Hello Vue!',
+      message: "Paint Canvas",
       vueCanvas:null,
       painting:false,
       canvas:null,
@@ -24,13 +24,24 @@ var app = new Vue({
         this.ctx.lineWidth = 10;
         this.ctx.lineCap ="round"
         
-       this.ctx.lineTo(e.clientX,e.clientY)
-       this.ctx.stroke()
+        this.ctx.lineTo(e.offsetX,e.offsetY)
+        this.ctx.stroke()
+    
+        this.ctx.beginPath()
+        this.ctx.moveTo(e.offsetX,e.offsetY)
   
-       this.ctx.beginPath()
-       this.ctx.moveTo(e.clientX,e.clientY)
-  
-    }
+      },
+      getCanvasData(){
+        let imageData = this.ctx.getImageData(0,0,this.canvas.height,this.canvas.width).data;
+        let count = 0;
+        console.log(imageData.length);
+        for(let i=0; i<imageData.length; i++){
+          if(imageData[i]>0){
+            count++;
+          }
+        }
+        console.log(count);
+      }
   },
 
   mounted() {
