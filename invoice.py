@@ -8,7 +8,7 @@ INVOICE_FILE = 'invoice.json'
 index = 0
 
 def make_invoice(total_donate, response, new_pixels):
-    s = {response:{"total_donate": total_donate, "new_pixels":new_pixels}}
+    s = {response:{pixels.TOTAL_NAME: total_donate, pixels.PIXELS_NAME:new_pixels}}
     with open(INVOICE_FILE,'w', newline='') as f:
         json.dump(s, f)
 
@@ -37,7 +37,7 @@ def resolve_invoice():
                     break
         if(found):
             print("resolving invoice:"+matching_entry)
-            pixels.Pixels.resolve_submission(matching_entry_pixels)
+            pixels.resolve_submission(matching_entry_pixels)
             invoice.pop(entry)
             f.seek(0)
             json.dump(invoice,f)

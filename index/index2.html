@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <link rel='stylesheet' type='text/css' href='style.css'/>
+    <title>
+      Community Paint Canvas
+    </title>
+  </head>
+  <body>
+    <div id="app">
+        
+      <h2>{{ message }}</h2> 
+      <canvas @mousedown="startPainting" @mouseup="finishedPainting" @mousemove="draw" id="canvas"></canvas>
+      <p>{{ status }}</p>
+      <p>{{ totalPixels }}</p>
+      <button id="refresh" @click="onClick">Refresh</button>
+      <form id="submission">
+        <label for="text_response">Describe what you drew and copy the text into your Tiltify donation comment:</label>
+        <br/>
+        <textarea id="text_response" name="text_response" v-model="textresponse" placeholder="A dog"></textarea>
+        <br/>
+        </form>
+        <button id='submit_button' name='new_pixels' @click="submit">Submit your drawing!</button>
+     </div>
+  </body>
+  <script type="module">
+    // Import the functions you need from the SDKs you need
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.4/firebase-app.js";
+    import { getAnalytics } from "https://www.gstatic.com/firebasejs/9.6.4/firebase-analytics.js";
+    import { initializeAppCheck } from "https://www.gstatic.com/firebasejs/9.6.4/firebase-app-check.js";
+    import { getDatabase, ref, set } from "https://www.gstatic.com/firebasejs/9.6.4/firebase-database.js";
+    // TODO: Add SDKs for Firebase products that you want to use
+    // https://firebase.google.com/docs/web/setup#available-libraries
+  
+    // Your web app's Firebase configuration
+    // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+    const firebaseConfig = {
+      apiKey: "AIzaSyDsKlJNNVt9WGsJAhxxydcXmXGGuowicU8",
+      authDomain: "community-paint-canvas.firebaseapp.com",
+      projectId: "community-paint-canvas",
+      storageBucket: "community-paint-canvas.appspot.com",
+      messagingSenderId: "39197725771",
+      appId: "1:39197725771:web:fdf8e9e544d01899f9a9ce",
+      measurementId: "G-K4FGMTTRM0"
+    };
+  
+    // Initialize Firebase
+    const app = initializeApp(firebaseConfig);
+    const analytics = getAnalytics(app);
+    
+    self.FIREBASE_APPCHECK_DEBUG_TOKEN = true;
+    initializeAppCheck(app, { /* App Check options */ });
+  </script>
+  <script type='text/javascript' href='canvas.json'></script>
+  <script src='vue.js'></script>
+  <script src="https://cdn.jsdelivr.net/npm/lodash@4.13.1/lodash.min.js"></script>
+  <script src='script2.js'></script>
+</html>
