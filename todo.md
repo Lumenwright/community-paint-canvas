@@ -16,6 +16,7 @@
 * investigate slowness on firefox
 * store the time and x/y coords of every mouse move and recreate the strokes on screen
 * pull and add descriptions to alt text of canvas
+* add "contact if you're having trouble" button
 
 **Bugs**:
 * can't do multiple invoice entries
