@@ -14,25 +14,25 @@ api.add_resource(pixels.Pixels, PIXELS) # entry point for pixels
 
 @app.route('/')
 def index():
-    with open("index/index2.html", 'r') as f:
+    with open("template/index2.html", 'r') as f:
         s= f.read()
         return s
 
 @app.route('/style.css')
 def style():
-    with open("index/style.css", 'r') as f:
+    with open("static/style.css", 'r') as f:
         s=f.read()
         return s
 
 @app.route('/script2.js')
 def script():
-    with open("index/script2.js", 'r') as f:
+    with open("static/script2.js", 'r') as f:
         s=f.read()
         return s
 
 @app.route('/vue.js')
 def vue():
-    with open("index/vue.js", 'r') as f:
+    with open("static/vue.js", 'r') as f:
         s=f.read()
         return s
 
