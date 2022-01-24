@@ -11,8 +11,8 @@ HISTORY_NODE = 'history'
 TIME_NAME = 'Time'
 DATE_FORMAT = "%b%d%y-%H%M%S"
 index = 0
-ref = pixels.db.reference(INVOICE_NODE)
-ref_history = pixels.db.reference(HISTORY_NODE)
+ref = pixels.ref.child(INVOICE_NODE)
+ref_history = pixels.ref.child(HISTORY_NODE)
 
 def make_invoice(total_donate, response, new_pixels):
     s = {response:{pixels.TOTAL_NAME: total_donate, pixels.PIXELS_NAME:new_pixels, TIME_NAME:dt.now().strftime(DATE_FORMAT)}}

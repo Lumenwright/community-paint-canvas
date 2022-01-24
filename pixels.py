@@ -16,15 +16,16 @@ cred = credentials.Certificate(dc.CRED_LOC)
 firebase_admin.initialize_app(cred, {'databaseURL':dc.DB_URL})
 
 # Get a database reference 
-ref = db.reference(PIXELS_NAME)
+ref = db.reference()
+ref_pixels = ref.child(PIXELS_NAME)
 
 def resolve_submission(new_pixels):
-    ref.update(new_pixels)
+    ref_pixels.update(new_pixels)
 
 class Pixels(Resource):
 
     def get(self):
-        data = ref.get()
+        data = ref_pixels.get()
         return data, 200
 
     def post(self):
