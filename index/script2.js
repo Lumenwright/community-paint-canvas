@@ -75,7 +75,7 @@ var app = new Vue({
       submit(){
         let array_sub = this.canvasArray.reduce((a, b)=>(a[b.num.toString()]={"num":b.num, "r":b.r, "g":b.g, "b":b.b, "a":b.a},a),{});
         
-        let submission = {pixels:array_sub, text_response:this.textresponse}
+        let submission = {pixels:array_sub, text_response:this.textresponse, total_donate:this.totalPixels};
         let json_string = JSON.stringify(submission);
         console.log("sending:" +json_string);
         this.req.open("POST",pxEndpoint);
@@ -84,13 +84,14 @@ var app = new Vue({
       },
       onClick(){
         console.log("refreshing...");
+        var w = this.canvas.width;
+        this.ctx.clearRect(0,0,w, this.canvas.height);
+        this.ctx.fillStyle ="black";
         //this.ctx.putImageData(this.vueCanvas,0,0);
         for(var p in this.canvasArray){
           var n = this.canvasArray[p].num;
-          var w = this.canvas.width;
           var x = Math.floor(n%w);
           var y = Math.floor(n/w);
-          this.ctx.fillStyle ="black";
           this.ctx.fillRect(x,y,1,1);          
         }
 
@@ -135,8 +136,8 @@ var app = new Vue({
       this.debouncedGetCanvas();
     },
     vueCanvas:function(){
-      console.log("vue canvas data changed:"+this.vueCanvas.data[601140]);
-
+      console.log("vue canvas data changed");
+      this.onClick();
     }
   },
   created:function(){

@@ -26,9 +26,10 @@ TOTAL_NAME = 'total_donate'
 RESPONSE_NAME = 'text_response'
 num_submits = 0
 
+def resolve_submission(new_pixels):
+    ref.update(new_pixels)
+    
 class Pixels(Resource):
-    def resolve_submission(self, new_pixels):
-        ref.update(new_pixels)
 
     def get(self):
         data = ref.get()
@@ -36,7 +37,7 @@ class Pixels(Resource):
 
     def post(self):
         dict = request.get_json()
-        #invoice.make_invoice(dict[TOTAL_NAME],dict[RESPONSE_NAME],dict[PIXELS_NAME])
-        #invoice.resolve_invoice()
-        self.resolve_submission(dict[PIXELS_NAME])
+        invoice.make_invoice(dict[TOTAL_NAME],dict[RESPONSE_NAME],dict[PIXELS_NAME])
+        invoice.resolve_invoice()
+        #self.resolve_submission(dict[PIXELS_NAME])
         return dict, 200  # return data with 200 OK
