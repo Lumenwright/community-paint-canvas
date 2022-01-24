@@ -11,15 +11,13 @@ HISTORY_NODE = 'history'
 TIME_NAME = 'Time'
 DATE_FORMAT = "%b%d%y-%H%M%S"
 index = 0
-ref = pixels.ref.child(INVOICE_NODE)
-ref_history = pixels.ref.child(HISTORY_NODE)
 
-def make_invoice(total_donate, response, new_pixels):
+def make_invoice(ref,total_donate, response, new_pixels):
     s = {response:{pixels.TOTAL_NAME: total_donate, pixels.PIXELS_NAME:new_pixels, TIME_NAME:dt.now().strftime(DATE_FORMAT)}}
-    ref.update(json.dumps(s))
+    ref.child(INVOICE_NODE).update(json.dumps(s))
 
 #resolve invoice
-def resolve_invoice():
+def resolve_invoice(ref):
     #get the last 10 donations
     header = {"Authorization":"Bearer "+dont_commit.AT}
     r = requests.get("https://tiltify.com/api/v3/campaigns/"+dont_commit.ID+"/donations", headers=header)
@@ -27,7 +25,7 @@ def resolve_invoice():
     donations = d["data"]
 
     #compare response to text in invoice
-    invoice_entries = ref.get(shallow=True) #just get the comments
+    invoice_entries = ref.child(INVOICE_NODE).get(shallow=True) #just get the comments
     found = False
     matching_entry_pixels = {}
     matching_entry =""
@@ -39,7 +37,7 @@ def resolve_invoice():
             if(entry==code):
                 found = True
                 matching_entry = entry
-                matching_entry_ref =ref.child(entry)
+                matching_entry_ref =ref.child(INVOICE_NODE).child(entry)
                 matching_entry_pixels = matching_entry_ref.child(pixels.PIXELS_NAME).get()
                 break
     if(found):
@@ -50,8 +48,8 @@ def resolve_invoice():
             pixels.PIXELS_NAME:matching_entry_pixels,
             "created_at":matching_entry_ref.child(TIME_NAME).get()
             }}
-        ref_history.update(h)
-        ref.child(entry).delete()
+        ref.child(HISTORY_NODE).update(h)
+        ref.child(INVOICE_NODE).child(entry).delete()
     else:
         print("couldn't find match")
         start_polling(resolve_invoice)

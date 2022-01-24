@@ -1,7 +1,7 @@
 from flask import request
 from flask_restful import Resource
-import invoice
 import dont_commit as dc
+from invoice import make_invoice, resolve_invoice
 
 #argument name for incoming pixels
 PIXELS_NAME = 'pixels'
@@ -30,6 +30,6 @@ class Pixels(Resource):
 
     def post(self):
         dict = request.get_json()
-        invoice.make_invoice(dict[TOTAL_NAME],dict[RESPONSE_NAME],dict[PIXELS_NAME])
-        invoice.resolve_invoice()
+        make_invoice(ref,dict[TOTAL_NAME],dict[RESPONSE_NAME],dict[PIXELS_NAME])
+        resolve_invoice(ref)
         return dict, 200  # return data with 200 OK
