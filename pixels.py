@@ -28,7 +28,7 @@ num_submits = 0
 
 class Pixels(Resource):
     def resolve_submission(self, new_pixels):
-        ref.set(new_pixels)
+        ref.update(new_pixels)
 
     def get(self):
         data = ref.get()
