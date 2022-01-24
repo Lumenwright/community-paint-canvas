@@ -48,7 +48,6 @@
     const app = initializeApp(firebaseConfig);
     const analytics = getAnalytics(app);
     
-    self.FIREBASE_APPCHECK_DEBUG_TOKEN = true;
     initializeAppCheck(app, { provider: new ReCaptchaV3Provider("6LcmRjIeAAAAAEG8s0Iy9Bc9Y6CGZU7BBxz5nOq1"),
 
 // Optional argument. If true, the SDK automatically refreshes App Check
