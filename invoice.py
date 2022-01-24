@@ -28,7 +28,6 @@ def resolve_invoice(ref):
     found = False
     matching_entry_pixels = {}
     matching_entry =""
-    matching_entry_ref = NULL
 
     for donation in donations:
         for entry in invoice_entries:
@@ -36,10 +35,10 @@ def resolve_invoice(ref):
             if(entry==code):
                 found = True
                 matching_entry = entry
-                matching_entry_ref =ref.child(INVOICE_NODE).child(entry)
-                matching_entry_pixels = matching_entry_ref.child(pixels.PIXELS_NAME).get()
                 break
     if(found):
+        matching_entry_ref =ref.child(INVOICE_NODE).child(matching_entry)
+        matching_entry_pixels = matching_entry_ref.child(pixels.PIXELS_NAME).get()
         print("resolving invoice:"+matching_entry)
         pixels.resolve_submission(matching_entry_pixels)
         h = {matching_entry:{
