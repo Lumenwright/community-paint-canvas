@@ -14,7 +14,7 @@ index = 0
 
 def make_invoice(ref,total_donate, response, new_pixels):
     s = {response:{pixels.TOTAL_NAME: total_donate, pixels.PIXELS_NAME:new_pixels, TIME_NAME:dt.now().strftime(DATE_FORMAT)}}
-    ref.child(INVOICE_NODE).update(json.dumps(s))
+    ref.child(INVOICE_NODE).update(s)
 
 #resolve invoice
 def resolve_invoice(ref):
@@ -52,4 +52,4 @@ def resolve_invoice(ref):
         ref.child(INVOICE_NODE).child(entry).delete()
     else:
         print("couldn't find match")
-        start_polling(resolve_invoice)
+        start_polling(lambda: resolve_invoice(ref))
