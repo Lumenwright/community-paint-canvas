@@ -73,7 +73,7 @@ var app = new Vue({
         this.canvasArray = newPixels;
       },
       submit(){
-        let array_sub = this.canvasArray.reduce((a, b)=>(a[b.num.toString()]={"r":b.r, "g":b.g, "b":b.b, "a":b.a},a),{});
+        let array_sub = this.canvasArray.reduce((a, b)=>(a[b.num.toString()]={"num":b.num, "r":b.r, "g":b.g, "b":b.b, "a":b.a},a),{});
         
         let submission = {pixels:array_sub, text_response:this.textresponse}
         let json_string = JSON.stringify(submission);
@@ -93,23 +93,21 @@ var app = new Vue({
 
     //load the state of the canvas and put the data into it
     var c = this.ctx;
-    var array = c.getImageData(0,0,this.canvas.height,this.canvas.width);
+    var array = c.createImageData(this.canvas.height,this.canvas.width);
+    var data = array.data;
+
     this.req = new XMLHttpRequest();
     this.req.onload= function(){
-      var canvasData = c.createImageData(array);
-      console.log("response:"+this.responseText);
-      var json_obj = JSON.parse(this.responseText).pixels;
-      var json_obj2 = JSON.parse(json_obj);
-      var json_obj3 = JSON.parse(json_obj2.new_pixels);
-      for(let j=0; j<json_obj3.length; j++){
-          let px = json_obj3[j];
-          let n = px.num;
-          canvasData[n] = px.r;
-          canvasData[n+1] = px.g;
-          canvasData[n+2] = px.b;
-          canvasData[n+3] = px.a;
+      var json_obj = JSON.parse(this.responseText);
+      for(var px in json_obj){
+          data[px] = json_obj[px].r;
+          data[px+1] = json_obj[px].g;
+          data[px+2] = json_obj[px].b;
+          data[px+3] = json_obj[px].a;
       }
-      c.putImageData(canvasData,0,0);
+      array.data = data;
+      c.putImageData(array,0,0);
+      
     };
     this.req.open("GET", DB_URL+pxEndpoint+".json");
     this.req.send();

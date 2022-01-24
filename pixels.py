@@ -38,6 +38,5 @@ class Pixels(Resource):
         dict = request.get_json()
         #invoice.make_invoice(dict[TOTAL_NAME],dict[RESPONSE_NAME],dict[PIXELS_NAME])
         #invoice.resolve_invoice()
-        print(dict)
         self.resolve_submission(dict[PIXELS_NAME])
         return dict, 200  # return data with 200 OK
