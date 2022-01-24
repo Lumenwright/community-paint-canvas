@@ -49,16 +49,6 @@
     
     self.FIREBASE_APPCHECK_DEBUG_TOKEN = true;
     initializeAppCheck(app, { /* App Check options */ });
-
-    function writeUserData(userId, name, email, imageUrl) {
-      const db = getDatabase(app);
-      set(ref(db, 'users/' + userId), {
-        username: name,
-        email: email,
-        profile_picture : imageUrl
-      });
-    };
-    writeUserData("jane", "jd", "aaa", "blank");
   </script>
   <script type='text/javascript' href='canvas.json'></script>
   <script src='vue.js'></script>

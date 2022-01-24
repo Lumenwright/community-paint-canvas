@@ -2,6 +2,7 @@ const defaultColour = {r:0,g:0,b:0,a:0}; // out of 255
 const pxEndpoint = "/pixels"
 const width = 500
 const height = 500
+const DB_URL = "https://community-paint-canvas-default-rtdb.europe-west1.firebasedatabase.app"
 
 var app = new Vue({
     el: '#app',
@@ -65,7 +66,6 @@ var app = new Vue({
             }  
           }
         }
-        console.log("numPx:"+imageData.length/4);
         this.status = 'The total number of pixels is:'
         //console.log(count);
         this.totalPixels= count;
@@ -73,10 +73,11 @@ var app = new Vue({
         this.canvasArray = newPixels;
       },
       submit(){
-        let str = JSON.stringify(this.canvasArray);
-        let submission = {new_pixels:str, text_response:this.textresponse}
+        let array_sub = this.canvasArray.reduce((a, b)=>(a[b.num.toString()]={"r":b.r, "g":b.g, "b":b.b, "a":b.a},a),{});
+        
+        let submission = {pixels:array_sub, text_response:this.textresponse}
         let json_string = JSON.stringify(submission);
-        console.log(json_string);
+        console.log("sending:" +json_string);
         this.req.open("POST",pxEndpoint);
         this.req.setRequestHeader("Content-type", "application/json");
         this.req.send(json_string);   
@@ -96,8 +97,8 @@ var app = new Vue({
     this.req = new XMLHttpRequest();
     this.req.onload= function(){
       var canvasData = c.createImageData(array);
-      console.log(this.responseText);
-      var json_obj = JSON.parse(this.responseText);
+      console.log("response:"+this.responseText);
+      var json_obj = JSON.parse(this.responseText).pixels;
       var json_obj2 = JSON.parse(json_obj);
       var json_obj3 = JSON.parse(json_obj2.new_pixels);
       for(let j=0; j<json_obj3.length; j++){
@@ -110,7 +111,7 @@ var app = new Vue({
       }
       c.putImageData(canvasData,0,0);
     };
-    this.req.open("GET", "canvas.json");
+    this.req.open("GET", DB_URL+pxEndpoint+".json");
     this.req.send();
   },
   watch:{
