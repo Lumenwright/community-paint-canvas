@@ -19,6 +19,7 @@
 * separate backgrounds for stream view and user view
 * host on the cloud
 * display current visuals on user view
+* investigate slowness on firefox
 
 **Bugs**:
 * can't do multiple invoice entries
