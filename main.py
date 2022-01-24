@@ -4,6 +4,7 @@ import pixels
 
 #endpoints
 PIXELS = '/pixels'
+CLEAR = '/reset-clear'
 
 #REST API
 app = Flask(__name__)
@@ -35,6 +36,10 @@ def vue():
         s=f.read()
         return s
 
-if __name__ == '__main__':
+@app.route(CLEAR)
+def reset():
     pixels.ref.set("")
+    return "canvas reset", 200
+
+if __name__ == '__main__':
     app.run() 
