@@ -13,6 +13,7 @@
       <canvas @mousedown="startPainting" @mouseup="finishedPainting" @mousemove="draw" id="canvas"></canvas>
       <p>{{ status }}</p>
       <p>{{ totalPixels }}</p>
+      <button id="refresh" @click="onClick">Refresh</button>
       <form id="submission">
         <label for="text_response">Describe what you drew and copy the text into your Tiltify donation comment:</label>
         <br/>

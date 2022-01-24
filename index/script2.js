@@ -55,16 +55,16 @@ var app = new Vue({
         //imageData is a one dimensional dictionary
         // with values listed as 1:r, 2:g, 3:b, 4:a 5:r, 5:g, 7:b, 8:a etc.
         // so need to put them into a structure of pixels to count how many pixels
-        for(let i=0; i<imageData.length; i++){
-          if(i%4==0){
-            let px = {num:i, r:imageData[i], g:imageData[i+1], b:imageData[i+2], a:imageData[i+3]};
+        let j = 0;
+        for(let i=0; i<imageData.length; i+=4){
+            let px = {num:j, r:imageData[i], g:imageData[i+1], b:imageData[i+2], a:imageData[i+3]};
             pixelData.push(px);
             // if it's not the default colour, increase the count
             if((px.r!=defaultColour.r || px.g!=defaultColour.g || px.b!=defaultColour.b)&&px.a == 255){
               newPixels.push(px);
               count++;
-            }  
-          }
+            } 
+            j++;
         }
         this.status = 'The total number of pixels is:'
         //console.log(count);
@@ -81,6 +81,19 @@ var app = new Vue({
         this.req.open("POST",pxEndpoint);
         this.req.setRequestHeader("Content-type", "application/json");
         this.req.send(json_string);   
+      },
+      onClick(){
+        console.log("refreshing...");
+        //this.ctx.putImageData(this.vueCanvas,0,0);
+        for(var p in this.canvasArray){
+          var n = this.canvasArray[p].num;
+          var w = this.canvas.width;
+          var x = Math.floor(n%w);
+          var y = Math.floor(n/w);
+          this.ctx.fillStyle ="black";
+          this.ctx.fillRect(x,y,1,1);          
+        }
+
       }
     },
   mounted() {
@@ -91,34 +104,39 @@ var app = new Vue({
     this.canvas.height = height;
     this.canvas.width = width;
 
-    //load the state of the canvas and put the data into it
-    var c = this.ctx;
-    var array = c.createImageData(this.canvas.height,this.canvas.width);
-    var data = array.data;
+        //load the state of the canvas and put the data into it
+        var c = this.ctx;
+        var array = c.createImageData(this.canvas.height,this.canvas.width);
+        var data = array.data;
+        var t = this;
 
-    this.req = new XMLHttpRequest();
-    this.req.onload= function(){
-      var json_obj = JSON.parse(this.responseText);
-      for(var px in json_obj){
-          data[px] = json_obj[px].r;
-          data[px+1] = json_obj[px].g;
-          data[px+2] = json_obj[px].b;
-          data[px+3] = json_obj[px].a;
-      }
-      array.data = data;
-      c.putImageData(array,0,0);
-      
-    };
-    this.req.open("GET", DB_URL+pxEndpoint+".json");
-    this.req.send();
+        this.req = new XMLHttpRequest();
+        this.req.onload= function(){
+          console.log("response received");
+          var json_obj = JSON.parse(this.responseText);
+          for(var px in json_obj){
+              data[px] = json_obj[px].r;
+              data[px+1] = json_obj[px].g;
+              data[px+2] = json_obj[px].b;
+              data[px+3] = json_obj[px].a;
+          }
+          t.vueCanvas = array;
+          t.canvasArray = json_obj;
+        };
+        this.req.open("GET", DB_URL+pxEndpoint+".json");
+        this.req.send();
   },
   watch:{
-    painting:function(newCount, oldCount){
+    painting:function(){
       if(this.painting){
         this.status = 'Painting...';
         return;
       }
       this.debouncedGetCanvas();
+    },
+    vueCanvas:function(){
+      console.log("vue canvas data changed:"+this.vueCanvas.data[601140]);
+
     }
   },
   created:function(){
