@@ -2,7 +2,6 @@ const defaultColour = {r:0,g:0,b:0,a:0}; // out of 255
 const pxEndpoint = "/pixels"
 const width = 500
 const height = 500
-const DB_URL = "https://community-paint-canvas-default-rtdb.europe-west1.firebasedatabase.app"
 
 var app = new Vue({
     el: '#app',
@@ -124,7 +123,7 @@ var app = new Vue({
           t.vueCanvas = array;
           t.canvasArray = json_obj;
         };
-        this.req.open("GET", DB_URL+pxEndpoint+".json");
+        this.req.open("GET", pxEndpoint);
         this.req.send();
   },
   watch:{
