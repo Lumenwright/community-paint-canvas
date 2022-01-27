@@ -6,8 +6,9 @@
 * reload/refresh button
 * make reset endpoint restricted - prompt to sign in with Twitch?
 * clear/reset button and approve/reject buttons for mod view
-* store invoices on firebase as well
 * save state history and be able to make a gif of it
+* loading gif/screen while it loads canvas
+* user confirmation e.g. on submit
 * on exit should delete any remaining invoices
 * donation time > time of submission
 * copy button for description text to Tiltify comment

@@ -1,6 +1,7 @@
 from flask import Flask, request
 from flask_restful import Api, reqparse
 import pixels
+import keys
 
 #endpoints
 PIXELS = '/pixels'
@@ -38,7 +39,9 @@ def vue():
 
 @app.route(CLEAR)
 def reset():
-    pixels.ref.set("")
+    curr = pixels.ref.child(keys.PIXELS_NAME).get()
+    pixels.ref.child(keys.HISTORY_NODE).child(keys.DUMP_NAME).set(curr)
+    pixels.ref.delete(keys.PIXELS_NAME)
     return "canvas reset", 200
 
 if __name__ == '__main__':
