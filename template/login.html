@@ -8,6 +8,9 @@
   </head>
   <body>
     <div id="auth">{{ status }}</div>
+    <div id="drawing" v-bind:style="display">
+        <canvas id="canvas"></canvas>
+    </div>
   </body>
   <script src='vue.js'></script>
   <script src='login.js'></script>

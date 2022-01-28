@@ -1,4 +1,4 @@
-const defaultColour = {r:0,g:0,b:0,a:0}; // out of 255
+const defaultColour = {r:0,g:0,b:0,a:0}; // in the ImageData, out of 255
 const pxEndpoint = "/pixels"
 const width = 500
 const height = 500
@@ -120,6 +120,8 @@ var app = new Vue({
     }
     this.req.open("GET", "alphas");
     this.req.send();
+
+    // see watched variable alphaDict for canvas drawing
   },
   watch:{
     painting:function(){
@@ -151,7 +153,6 @@ var app = new Vue({
         var json_obj = JSON.parse(this.responseText);
         for(var entry in json_obj){
           var a = t.alphaDict[entry].alpha;
-          console.log("alpha:"+a)
           var p = json_obj[entry];
           for(var px in p)
             var i = parseInt(px, 10);

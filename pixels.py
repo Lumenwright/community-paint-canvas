@@ -1,7 +1,7 @@
 from flask import request
 from flask_restful import Resource
 import dont_commit as dc
-from invoice import make_histories, make_invoice, reduce_alpha_value, resolve_invoice, resolve_submission
+from invoice import make_invoice, reduce_alpha_value, resolve, resolve_invoice
 import keys
 
 DEBUG = True
@@ -28,6 +28,16 @@ try:
         reduce_alpha_value(ref, alphas[key][keys.TIME_NAME], key)
 except(TypeError):
     print("no pixels left from last run")
+
+# ========= look for invoices to review =================
+try:
+    print("checking for outstanding invoices...")
+    invoices = ref.child(keys.INVOICE_NODE).get()
+    if(invoices == None):
+        raise TypeError("No invoices")
+    resolve_invoice(ref)
+except TypeError:
+    print("no outstanding invoices")
 #========================================================
 
 class Pixels(Resource):
@@ -42,11 +52,7 @@ class Pixels(Resource):
 
         if(DEBUG):
             for entry in ref.child(keys.INVOICE_NODE).get(shallow=True):
-                matching_entry_ref = ref.child(keys.INVOICE_NODE).child(entry)
-                matching_entry_pixels_ref = ref.child(keys.Q_NODE).child(entry)
-                resolve_submission(ref, matching_entry_pixels_ref.get(), entry)
-                make_histories(ref, entry, matching_entry_ref, ref.child(keys.Q_NODE).child(entry))
-        
+                resolve(ref, entry)
         else:
             resolve_invoice(ref)
             return dict, 200  # return data with 200 OK

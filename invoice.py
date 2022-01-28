@@ -1,11 +1,13 @@
 import json
+from winreg import EnumKey
 import requests
 import dont_commit
 from datetime import datetime as dt
 from time import time
-from poller import start_polling
+from poller import start_polling, wait_for_bool
 import keys
 import math
+from enum import Enum
 
 DATE_FORMAT = "%b%d%y-%H%M%S"
 INTERVAL = 5.0 #seconds
@@ -17,12 +19,19 @@ MAX_ALPHA = 255
 FADE_PER_STEP = math.floor(MAX_ALPHA / FADE_STEPS)
 FADE_TIME_PER_STEP = math.floor(FADE_TIME / FADE_STEPS)
 
+class Approved(Enum):
+    NOT_REVIEWED = 0
+    APPROVED = 1
+    REJECTED = 2
+
 def make_invoice(ref,total_donate, response, new_pixels):
     s = {
         keys.RESPONSE_NAME:response.translate(str.maketrans('', '', '!@#$?%&*\{/}><^()":;.,][|\'`~+=-_')),
      keys.TOTAL_NAME: total_donate, 
      keys.TIME_NAME:dt.now().strftime(DATE_FORMAT), 
-     keys.HEARTBEAT_TIME_NAME:time()}
+     keys.HEARTBEAT_TIME_NAME:time(),
+     keys.APPROVED_NAME:Approved.NOT_REVIEWED.value
+     }
     autoID = ref.child(keys.INVOICE_NODE).push()
     autoID.update(s)
     ref.child(keys.Q_NODE).update({autoID.key:new_pixels})
@@ -67,14 +76,29 @@ def resolve_invoice(ref):
                 matching_entry = key
                 break
     if(found):
-        matching_entry_ref =ref.child(keys.INVOICE_NODE).child(matching_entry)
-        matching_entry_pixels_ref = ref.child(keys.Q_NODE).child(matching_entry)
+        resolve(ref, matching_entry)
+    else:
+        print("invoices: couldn't find any matching donations yet")
+        start_polling(lambda: resolve_invoice(ref), INTERVAL)
+
+
+def resolve(ref,matching_entry):
+    matching_entry_ref =ref.child(keys.INVOICE_NODE).child(matching_entry)
+    matching_entry_pixels_ref = ref.child(keys.Q_NODE).child(matching_entry)
+    def resolve_pixels():
         print("resolving invoice:"+matching_entry)
         resolve_submission(ref, matching_entry_pixels_ref.get(), matching_entry)
         make_histories(ref,matching_entry,matching_entry_ref,matching_entry_pixels_ref)
+
+    invoice = matching_entry_ref.get()
+    if invoice[keys.APPROVED_NAME]==Approved.APPROVED.value:
+        resolve_pixels()
+    elif invoice[keys.APPROVED_NAME]==Approved.NOT_REVIEWED.value:
+        print("found matching invoice "+matching_entry+", waiting for moderator approval")
+        wait_for_bool(matching_entry_ref.child(keys.APPROVED_NAME),resolve_pixels,INTERVAL)
     else:
-        print("couldn't find match")
-        start_polling(lambda: resolve_invoice(ref), INTERVAL)
+        print("invoice "+matching_entry+" is not in the right place")
+
 
 def resolve_submission(ref, new_pixels, key):
     # add pixels to canvas database

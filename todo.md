@@ -1,9 +1,10 @@
-* pixel fadeout
 * match donation amount
 * make stream view that refreshes automatically
 * change the way the total pixels are counted to the number of mouse move frames and not dependent on colour (and make sure current drawings aren't counted)
 * make tiles and tile system
+* erase/clear submission button
 * reload/refresh button
+* clean up auth tokens etc.
 * make reset endpoint restricted - prompt to sign in with Twitch?
 * clear/reset button and approve/reject buttons for mod view
 * save state history and be able to make a gif of it
