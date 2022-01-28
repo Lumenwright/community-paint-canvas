@@ -1,4 +1,3 @@
-from enum import auto
 import json
 import requests
 import dont_commit
@@ -11,8 +10,8 @@ import math
 DATE_FORMAT = "%b%d%y-%H%M%S"
 INTERVAL = 5.0 #seconds
 
-GRACE_TIME = 120 # seconds to wait before fading
-FADE_TIME = 120 #seconds to fade out pixels
+GRACE_TIME = 5 # seconds to wait before fading
+FADE_TIME = 20 #seconds to fade out pixels
 FADE_STEPS = 10 #number of "steps" to fade out pixels
 MAX_ALPHA = 255
 FADE_PER_STEP = math.floor(MAX_ALPHA / FADE_STEPS)
@@ -33,12 +32,15 @@ def make_invoice(ref,total_donate, response, new_pixels):
 # If the alpha <= 0 then remove the pixels from the canvas
 def reduce_alpha_value(ref, entry_time, key):
     curr_t = time()
-    diff = curr_t - entry_time
+    diff = curr_t - entry_time - GRACE_TIME
+    print("reducing alpha for entry "+str(entry_time))
+    print("time difference: "+str(diff))
+    
     if(diff > FADE_TIME):
         ref.child(keys.PIXELS_NAME).child(key).delete()
         ref.child(keys.ALPHA_INDEX_NODE).child(key).delete()
         return
-    elif(diff > FADE_TIME_PER_STEP):
+    elif(diff > FADE_TIME_PER_STEP ):
         fade_amount = math.floor(diff/FADE_TIME_PER_STEP*FADE_PER_STEP)
         ref.child(keys.ALPHA_INDEX_NODE).child(key).child(keys.ALPHA_NAME).set(MAX_ALPHA - fade_amount)
     start_polling(lambda:reduce_alpha_value(ref, entry_time, key), FADE_TIME_PER_STEP)
@@ -69,6 +71,20 @@ def resolve_invoice(ref):
         matching_entry_pixels_ref = ref.child(keys.Q_NODE).child(matching_entry)
         print("resolving invoice:"+matching_entry)
         resolve_submission(ref, matching_entry_pixels_ref.get(), matching_entry)
+        make_histories(ref,matching_entry,matching_entry_ref,matching_entry_pixels_ref)
+    else:
+        print("couldn't find match")
+        start_polling(lambda: resolve_invoice(ref), INTERVAL)
+
+def resolve_submission(ref, new_pixels, key):
+    # add pixels to canvas database
+    entry_time = int(time())
+    ref.child(keys.PIXELS_NAME).child(key).update(new_pixels)
+    ref.child(keys.ALPHA_INDEX_NODE).child(key).set({keys.TIME_NAME:entry_time, keys.ALPHA_NAME:MAX_ALPHA})
+    # start a new timer for fading out the pixels
+    start_polling(lambda:reduce_alpha_value(ref,entry_time, key),GRACE_TIME)
+
+def make_histories(ref,matching_entry, matching_entry_ref, matching_entry_pixels_ref):
         e = {
             keys.RESOLVE_TIME:dt.now().strftime(DATE_FORMAT),
             keys.RESOLVE_HEARTBEAT_TIME:time(),
@@ -79,15 +95,3 @@ def resolve_invoice(ref):
         ref.child(keys.INVOICE_HISTORY_NODE).child(matching_entry).set(e)
         matching_entry_ref.delete()
         matching_entry_pixels_ref.delete()
-    else:
-        print("couldn't find match")
-        start_polling(lambda: resolve_invoice(ref), INTERVAL)
-
-def resolve_submission(ref, new_pixels, key):
-    # add pixels to canvas database
-    entry_time = int(time())
-    ref.child(keys.PIXELS_NAME).child(key).update(new_pixels)
-    ref.child(keys.ALPHA_INDEX_NODE).child(key).set({keys.TIME_NAME:entry_time, keys.ALPHA_NAME:MAX_ALPHA})
-
-    # start a new timer for fading out the pixels
-    start_polling(lambda:reduce_alpha_value(ref,entry_time, key),GRACE_TIME)

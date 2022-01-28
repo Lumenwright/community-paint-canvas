@@ -6,6 +6,8 @@ import keys
 #endpoints
 PIXELS = '/pixels'
 CLEAR = '/reset-clear'
+LOGIN = '/login'
+ALPHAS = '/alphas'
 
 #REST API
 app = Flask(__name__)
@@ -36,11 +38,18 @@ def vue():
     with open("static/vue.js", 'r') as f:
         s=f.read()
         return s
-        
-@app.route('/alphas')
+
+@app.route(ALPHAS)
 def get():
     a = pixels.ref.child(keys.ALPHA_INDEX_NODE).get()
+    if(a==None):
+        a=""
     return a, 200
+
+@app.route(LOGIN)
+def login():
+    with open("template/login.html", 'r') as f:
+        return f.read()
 
 @app.route(CLEAR)
 def reset():

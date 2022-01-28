@@ -83,11 +83,12 @@ var app = new Vue({
         console.log("redrawing canvas...");
         var w = this.canvas.width;
         this.ctx.clearRect(0,0,w, this.canvas.height);
-        this.ctx.fillStyle ="black";
         //this.ctx.putImageData(this.vueCanvas,0,0);
         var d = this.currentCanvas;
         for(var entry in d){
           e = d[entry];
+          var colour = `rgba(0, 0, 0, ${this.alphaDict[entry].alpha/255})`;
+          this.ctx.fillStyle =colour;
           for(var p in e){
             var n = e[p].num;
             var x = Math.floor(n%w);
@@ -110,6 +111,10 @@ var app = new Vue({
     var t = this;
     this.req = new XMLHttpRequest();
     this.req.onload = function(){
+      if(this.responseText==""){
+        console.log("No alphas");
+        return;
+      }
       t.alphaDict = JSON.parse(this.responseText);
       console.log("Alphas receieved");
     }
@@ -129,6 +134,10 @@ var app = new Vue({
       this.redraw();
     },
     alphaDict:function(){
+      if(this.alphaDict==""){
+        console.log("No alphas");
+        return;
+      }
       //load the state of the canvas and put the data into it
       var c = this.ctx;
       var array = c.createImageData(this.canvas.height,this.canvas.width);
@@ -142,6 +151,7 @@ var app = new Vue({
         var json_obj = JSON.parse(this.responseText);
         for(var entry in json_obj){
           var a = t.alphaDict[entry].alpha;
+          console.log("alpha:"+a)
           var p = json_obj[entry];
           for(var px in p)
             var i = parseInt(px, 10);
@@ -160,5 +170,21 @@ var app = new Vue({
   },
   created:function(){
     this.debouncedGetCanvas = _.debounce(this.getTotalPixels, 500);
+  }
+})
+
+//==== LOGIN =======
+var login = new Vue({
+  el:"#login",
+  data:{
+    clientId:"iplrkfjlmtjhhhsdjjg2mw8h8bhxfc",
+    redirectUri:"/login",
+    scope:"",
+    Url:""
+  },
+ mounted(){
+      this.Url= "https://id.twitch.tv/oauth2/authorize?client_id="+this.clientId
+      +"&redirect_uri="+this.redirectUri+"&response_type=token&scope="
+    
   }
 })
