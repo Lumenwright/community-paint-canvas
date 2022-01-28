@@ -178,7 +178,7 @@ var login = new Vue({
   el:"#login",
   data:{
     clientId:"iplrkfjlmtjhhhsdjjg2mw8h8bhxfc",
-    redirectUri:"/login",
+    redirectUri:"http://localhost:5000/login",
     scope:"",
     Url:""
   },

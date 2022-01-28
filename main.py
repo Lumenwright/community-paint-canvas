@@ -39,6 +39,16 @@ def vue():
         s=f.read()
         return s
 
+@app.route('/login.js')
+def login_script():
+    with open("static/login.js", 'r') as f:
+        return f.read()
+
+@app.route('/data.json')
+def mods():
+    with open("data.json", 'r') as f:
+        return f.read()
+
 @app.route(ALPHAS)
 def get():
     a = pixels.ref.child(keys.ALPHA_INDEX_NODE).get()
