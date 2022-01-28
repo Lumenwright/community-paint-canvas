@@ -36,12 +36,24 @@ def vue():
     with open("static/vue.js", 'r') as f:
         s=f.read()
         return s
+        
+@app.route('/alphas')
+def get():
+    a = pixels.ref.child(keys.ALPHA_INDEX_NODE).get()
+    return a, 200
 
 @app.route(CLEAR)
 def reset():
-    curr = pixels.ref.child(keys.PIXELS_NAME).get()
-    pixels.ref.child(keys.HISTORY_NODE).child(keys.DUMP_NAME).set(curr)
+    curr_p = pixels.ref.child(keys.PIXELS_NAME).get()
+    curr_i = pixels.ref.child(keys.INVOICE_NODE).get()
+    curr_q = pixels.ref.child(keys.Q_NODE).get()
+    pixels.ref.child(keys.HISTORY_NODE).child(keys.DUMP_NAME).push(curr_p)
+    pixels.ref.child(keys.HISTORY_NODE).child(keys.DUMP_NAME).push(curr_q)
+    pixels.ref.child(keys.INVOICE_HISTORY_NODE).child(keys.DUMP_NAME).push(curr_i)
     pixels.ref.delete(keys.PIXELS_NAME)
+    pixels.ref.delete(keys.ALPHA_INDEX_NODE)
+    pixels.ref.delete(keys.INVOICE_NODE)
+    pixels.ref.delete(keys.Q_NODE)
     return "canvas reset", 200
 
 if __name__ == '__main__':
