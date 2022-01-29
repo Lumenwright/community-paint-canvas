@@ -6,7 +6,7 @@
 * reload/refresh button
 * clean up auth tokens etc.
 * make reset endpoint restricted - prompt to sign in with Twitch?
-* clear/reset button and approve/reject buttons for mod view
+* clear/reset button for mod view
 * save state history and be able to make a gif of it
 * loading gif/screen while it loads canvas
 * user confirmation e.g. on submit
