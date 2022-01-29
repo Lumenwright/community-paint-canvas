@@ -37,7 +37,7 @@ try:
         raise TypeError("No invoices")
 except TypeError:
     print("no outstanding invoices")
-finally:    
+else:    
     for entry in invoices:
         if(DEBUG):
                 resolve(ref, entry)
