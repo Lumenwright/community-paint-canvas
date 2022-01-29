@@ -9,6 +9,7 @@ const RESPONSE_NAME = "text_response"
 var auth = new Vue({
     el:"#auth",
     data : {
+        validated:false,
         authorized:false,
         status:"Logging in...",
         token:"",
@@ -30,50 +31,12 @@ var auth = new Vue({
                 this.status="Session expired, you need to log in again";
                 return;
             }
-            this.status = "Authorizing..."
+            this.status = "Authorizing...";
+            t.validated=true;
         }
         validate.open("GET", "https://id.twitch.tv/oauth2/validate");
         validate.setRequestHeader("Authorization","Bearer "+this.token);
         validate.send();
-
-        //get the username
-        var req = new XMLHttpRequest();
-
-        req.onload = function(){
-            var s = JSON.parse(this.responseText);
-
-            t.username = s.data[0]["display_name"].toLowerCase();
-            if(t.username==null || t.username==undefined){
-                console.log("Could not find username for "+this.responseText);
-            }
-       }
-        req.open("GET","https://api.twitch.tv/helix/users");
-        req.setRequestHeader("Authorization", "Bearer "+this.token);
-        req.setRequestHeader("Client-id","iplrkfjlmtjhhhsdjjg2mw8h8bhxfc")
-        req.send()
-
-        // check if the user is on the internal allow list.
-        var t = this;
-        req = new XMLHttpRequest();
-        req.onload = function(){
-            if(t.username==""){
-                console.log(`Couldn't find user for token:${this.token}`);
-            }
-            var s = JSON.parse(this.responseText);
-            var found = false;
-            var list = s["data"]["allow"];
-            for(var key in list){
-                if(list[key] == t.username){
-                    found = true;
-                    break;
-                }
-            }
-            if(found){
-                t.authorized = true
-            }
-        }
-        req.open("GET","data.json")
-        req.send()
     },
     watch:{
         authorized:function(){
@@ -86,6 +49,46 @@ var auth = new Vue({
                 this.status = "You can't view this page. Go back to the main page"
                 return;
             }
+        },
+        validated:function(){
+            //get the username
+            var req = new XMLHttpRequest();
+
+            req.onload = function(){
+                var s = JSON.parse(this.responseText);
+
+                t.username = s.data[0]["display_name"].toLowerCase();
+                if(t.username==null || t.username==undefined){
+                    console.log("Could not find username for "+this.responseText);
+                }
+            }
+            req.open("GET","https://api.twitch.tv/helix/users");
+            req.setRequestHeader("Authorization", "Bearer "+this.token);
+            req.setRequestHeader("Client-id","iplrkfjlmtjhhhsdjjg2mw8h8bhxfc")
+            req.send()
+
+            // check if the user is on the internal allow list.
+            var t = this;
+            req = new XMLHttpRequest();
+            req.onload = function(){
+                if(t.username==""){
+                    console.log(`Couldn't find user for token:${this.token}`);
+                }
+                var s = JSON.parse(this.responseText);
+                var found = false;
+                var list = s["data"]["allow"];
+                for(var key in list){
+                    if(list[key] == t.username){
+                        found = true;
+                        break;
+                    }
+                }
+                if(found){
+                    t.authorized = true
+                }
+            }
+            req.open("GET","data.json")
+            req.send()
         }
     }
 })
