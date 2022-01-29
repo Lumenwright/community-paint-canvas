@@ -1,13 +1,16 @@
 import threading
+from tracemalloc import start
+import keys
 
-import threading
-INTERVAL = 5.0 #seconds
+def wait_for_bool(ref, f, period):
+    isTrue = ref.get()
+    if isTrue:
+        f()
+        return True
+    else:
+        start_polling(lambda:wait_for_bool(ref, f, period), period)
+        return False
 
-def start_polling(f):
-    timer = threading.Timer(INTERVAL, f)
+def start_polling(f, period):
+    timer = threading.Timer(period, f)
     timer.start()
-
-if(__name__ == "__main__"):
-    def f():
-        print("time")
-    start_polling(f)

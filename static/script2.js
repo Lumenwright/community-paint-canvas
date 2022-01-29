@@ -1,4 +1,4 @@
-const defaultColour = {r:0,g:0,b:0,a:0}; // out of 255
+const defaultColour = {r:0,g:0,b:0,a:0}; // in the ImageData, out of 255
 const pxEndpoint = "/pixels"
 const width = 500
 const height = 500
@@ -8,15 +8,17 @@ var app = new Vue({
     data: {
       message: "Paint Canvas",
       vueCanvas:null,
+      currentCanvas:null,
       painting:false,
       canvas:null,
       ctx:null,
       req:null,
+      reqPx:null,
       status:'',
       totalPixels:0,
       textresponse:'',
-      pixelArray:null,
-      canvasArray:null
+      canvasArray:null,
+      alphaDict:null
     },
     methods: {
       startPainting(e) {
@@ -46,7 +48,6 @@ var app = new Vue({
       getTotalPixels(){
         this.status = 'Counting...';
         let imageData = this.ctx.getImageData(0,0,this.canvas.height,this.canvas.width).data;
-        let pixelData = [];
         let newPixels = [];
         let count = 0;
 
@@ -57,7 +58,6 @@ var app = new Vue({
         let j = 0;
         for(let i=0; i<imageData.length; i+=4){
             let px = {num:j, r:imageData[i], g:imageData[i+1], b:imageData[i+2], a:imageData[i+3]};
-            pixelData.push(px);
             // if it's not the default colour, increase the count
             if((px.r!=defaultColour.r || px.g!=defaultColour.g || px.b!=defaultColour.b)&&px.a == 255){
               newPixels.push(px);
@@ -68,12 +68,10 @@ var app = new Vue({
         this.status = 'The total number of pixels is:'
         //console.log(count);
         this.totalPixels= count;
-        this.pixelArray = pixelData;
         this.canvasArray = newPixels;
       },
       submit(){
-        let array_sub = this.canvasArray.reduce((a, b)=>(a[b.num.toString()]={"num":b.num, "r":b.r, "g":b.g, "b":b.b, "a":b.a},a),{});
-        
+        let array_sub = this.canvasArray.reduce((a, b)=>(a[b.num.toString()]={"num":b.num, "r":b.r, "g":b.g, "b":b.b, "a":b.a},a),{});     
         let submission = {pixels:array_sub, text_response:this.textresponse, total_donate:this.totalPixels};
         let json_string = JSON.stringify(submission);
         console.log("sending:" +json_string);
@@ -81,17 +79,22 @@ var app = new Vue({
         this.req.setRequestHeader("Content-type", "application/json");
         this.req.send(json_string);   
       },
-      onClick(){
-        console.log("refreshing...");
+      redraw(){
+        console.log("redrawing canvas...");
         var w = this.canvas.width;
         this.ctx.clearRect(0,0,w, this.canvas.height);
-        this.ctx.fillStyle ="black";
         //this.ctx.putImageData(this.vueCanvas,0,0);
-        for(var p in this.canvasArray){
-          var n = this.canvasArray[p].num;
-          var x = Math.floor(n%w);
-          var y = Math.floor(n/w);
-          this.ctx.fillRect(x,y,1,1);          
+        var d = this.currentCanvas;
+        for(var entry in d){
+          e = d[entry];
+          var colour = `rgba(0, 0, 0, ${this.alphaDict[entry].alpha/255})`;
+          this.ctx.fillStyle =colour;
+          for(var p in e){
+            var n = e[p].num;
+            var x = Math.floor(n%w);
+            var y = Math.floor(n/w);
+            this.ctx.fillRect(x,y,1,1);
+          }          
         }
 
       }
@@ -104,27 +107,21 @@ var app = new Vue({
     this.canvas.height = height;
     this.canvas.width = width;
 
-        //load the state of the canvas and put the data into it
-        var c = this.ctx;
-        var array = c.createImageData(this.canvas.height,this.canvas.width);
-        var data = array.data;
-        var t = this;
+    console.log("Retrieving alphas...");
+    var t = this;
+    this.req = new XMLHttpRequest();
+    this.req.onload = function(){
+      if(this.responseText==""){
+        console.log("No alphas");
+        return;
+      }
+      t.alphaDict = JSON.parse(this.responseText);
+      console.log("Alphas receieved");
+    }
+    this.req.open("GET", "alphas");
+    this.req.send();
 
-        this.req = new XMLHttpRequest();
-        this.req.onload= function(){
-          console.log("response received");
-          var json_obj = JSON.parse(this.responseText);
-          for(var px in json_obj){
-              data[px] = json_obj[px].r;
-              data[px+1] = json_obj[px].g;
-              data[px+2] = json_obj[px].b;
-              data[px+3] = json_obj[px].a;
-          }
-          t.vueCanvas = array;
-          t.canvasArray = json_obj;
-        };
-        this.req.open("GET", pxEndpoint);
-        this.req.send();
+    // see watched variable alphaDict for canvas drawing
   },
   watch:{
     painting:function(){
@@ -136,10 +133,60 @@ var app = new Vue({
     },
     vueCanvas:function(){
       console.log("vue canvas data changed");
-      this.onClick();
+      this.redraw();
+    },
+    alphaDict:function(){
+      if(this.alphaDict==""){
+        console.log("No alphas");
+        return;
+      }
+      //load the state of the canvas and put the data into it
+      var c = this.ctx;
+      var array = c.createImageData(this.canvas.height,this.canvas.width);
+      var data = array.data;
+      var t = this;
+
+      this.reqPx = new XMLHttpRequest();
+      this.reqPx.onload= function(){
+        console.log("Pixels received");
+        console.log("Constructing canvas...");
+        var json_obj = JSON.parse(this.responseText);
+        // data for putImageData(), which doesn't work
+        /*for(var entry in json_obj){
+          var a = t.alphaDict[entry].alpha;
+          var p = json_obj[entry];
+          for(var px in p)
+            var i = parseInt(px, 10);
+            data[i] = p[px].r;
+            data[i+1] = p[px].g;
+            data[i+2] = p[px].b;
+            data[i+3] = a;
+        }*/
+        t.vueCanvas = array;
+        t.currentCanvas = json_obj
+      };
+      this.reqPx.open("GET", pxEndpoint);
+      this.reqPx.send();
+      console.log("Retrieving pixels...");
     }
   },
   created:function(){
     this.debouncedGetCanvas = _.debounce(this.getTotalPixels, 500);
+  }
+})
+
+//==== LOGIN =======
+var login = new Vue({
+  el:"#login",
+  data:{
+    clientId:"iplrkfjlmtjhhhsdjjg2mw8h8bhxfc",
+    redirectUri:"http://localhost:5000/login",
+    scope:"",
+    Url:""
+  },
+ mounted(){
+      this.Url= "https://id.twitch.tv/oauth2/authorize?client_id="+this.clientId
+      +"&redirect_uri="+this.redirectUri+"&response_type=token&scope="
+    
   }
 })

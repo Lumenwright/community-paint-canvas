@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <link rel='stylesheet' type='text/css' href='style.css'/>
+    <title>
+      Moderation View
+    </title>
+  </head>
+  <body>
+    <div id="auth">{{ status }}</div>
+    <div id="drawing">
+        <canvas id="canvas" v-bind:style="display"></canvas></br>
+        <p id="entry_status">{{ status }}</p>
+        <div v-bind:style="display">
+            <p id="entry_name">Entry: {{ curr_px_name }}</p>
+            <p id="entry_comment">Comment: {{ comment }}</p>
+            <button class="major_button" id="approve" @click="onApprove">Approve</button>
+            <button class="major_button" id="reject" @click="onReject">Reject</button>
+        </div>
+    </div>
+  </body>
+  <script src='vue.js'></script>
+  <script src='login.js'></script>
+  <script src='data.json'></script>
+</html>
