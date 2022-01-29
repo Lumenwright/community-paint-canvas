@@ -180,7 +180,7 @@ var login = new Vue({
   el:"#login",
   data:{
     clientId:"iplrkfjlmtjhhhsdjjg2mw8h8bhxfc",
-    redirectUri:"http://localhost:5000/login",
+    redirectUri:"https://community-paint-canvas.uk.r.appspot.com/login",
     scope:"",
     Url:""
   },

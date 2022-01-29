@@ -4,7 +4,7 @@ import dont_commit as dc
 from invoice import make_invoice, reduce_alpha_value, resolve, resolve_invoice
 import keys
 
-DEBUG = True
+DEBUG = False
 
 #firebase auth
 import firebase_admin

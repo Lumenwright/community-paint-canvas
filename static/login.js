@@ -10,7 +10,7 @@ var auth = new Vue({
     el:"#auth",
     data : {
         authorized:false,
-        status:"Authorizing...",
+        status:"Logging in...",
         token:"",
         username:""
     },
@@ -18,8 +18,24 @@ var auth = new Vue({
         // Get the access token from the user login from Twitch API
         var hash = document.location.hash.split('&');
         this.token = hash[0].split('=')[1];
-        var req = new XMLHttpRequest();
+
         var t = this;
+
+        //validate the token
+        var validate = new XMLHttpRequest();
+        validate.onload=function(){
+            console.log("validation:"+this.responseText)
+            var s = JSON.parse(this.responseText);
+            if(s==null){
+                this.status="Session expired, you need to log in again";
+                return;
+            }
+            this.status = "Authorizing..."
+        }
+
+        //get the username
+        var req = new XMLHttpRequest();
+
         req.onload = function(){
             var s = JSON.parse(this.responseText);
             t.username = s.data[0]["display_name"];
@@ -57,6 +73,10 @@ var auth = new Vue({
             if(this.authorized){
                 var s = "Welcome, "+this.username+"!";
                 this.status = s;
+                return;
+            }
+            else{
+                this.status = "You can't view this page. Go back to the main page"
                 return;
             }
         }

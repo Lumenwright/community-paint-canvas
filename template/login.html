@@ -7,7 +7,9 @@
     </title>
   </head>
   <body>
-    <div id="auth">{{ status }}</div>
+    <div id="auth">
+        <p>{{ status }}</p>
+    </div>
     <div id="drawing">
         <canvas id="canvas" v-bind:style="display"></canvas></br>
         <p id="entry_status">{{ status }}</p>
