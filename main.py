@@ -59,7 +59,7 @@ def mods():
         return f.read()
 
 @app.route(APPROVE, methods=["POST"])
-def approve():
+def review():
     s = request.get_json()
     key = s[keys.ENTRY_NAME]
     print("processing review status for "+str(s))
@@ -76,12 +76,18 @@ def approve():
         d = json.load(f)
 
     list = d["data"]["allow"]
+    a_name = "Approved"
+    r_name = "Rejected"
     if username in list:
         #get invoice
         invoice_ref = pixels.ref.child(keys.INVOICE_NODE).child(key)
         #change approval status
-        invoice_ref.child(keys.APPROVED_NAME).set(invoice.Approved.APPROVED.value)
-        return "approved", 200
+        if(s[keys.STATUS_NAME]==a_name):
+            invoice_ref.child(keys.APPROVED_NAME).set(invoice.Approved.APPROVED.value)
+            return a_name, 200
+        elif(s[keys.STATUS_NAME]==r_name):
+            invoice_ref.child(keys.APPROVED_NAME).set(invoice.Approved.REJECTED.value)
+            return r_name, 200
     else:
         return "not authorized", 401
 

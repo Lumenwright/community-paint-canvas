@@ -95,9 +95,10 @@ def resolve(ref,matching_entry):
         resolve_pixels()
     elif invoice[keys.APPROVED_NAME]==Approved.NOT_REVIEWED.value:
         print("found matching invoice "+matching_entry+", waiting for moderator approval")
-        wait_for_bool(matching_entry_ref.child(keys.APPROVED_NAME),resolve_pixels,INTERVAL)
+        start_polling(lambda: resolve(ref,matching_entry),INTERVAL)
     else:
-        print("invoice "+matching_entry+" is not in the right place")
+        print("invoice "+matching_entry+" was rejected, storing in history")
+        make_histories(ref,matching_entry,matching_entry_ref,matching_entry_pixels_ref)
 
 
 def resolve_submission(ref, new_pixels, key):

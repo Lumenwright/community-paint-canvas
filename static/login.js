@@ -76,7 +76,14 @@ var drawing = new Vue({
     },
     methods:{
         onApprove(){
-            this.status = "Approved"
+            this.status = "Approved";
+            this.submit();
+        },
+        onReject(){
+            this.status = "Rejected";
+            this.submit();
+        },
+        submit(){
             var obj = {token:auth.token, status:this.status, entry:this.curr_px_name}
             var r = new XMLHttpRequest();
             r.onload=function(){console.log("approve:"+this.responseText)}
