@@ -26,20 +26,27 @@ var auth = new Vue({
         validate.onload=function(){
             console.log("validation:"+this.responseText)
             var s = JSON.parse(this.responseText);
-            if(s==null){
+            if(s==null || s==undefined){
                 this.status="Session expired, you need to log in again";
                 return;
             }
             this.status = "Authorizing..."
         }
+        validate.open("GET", "https://id.twitch.tv/oauth2/validate");
+        validate.setRequestHeader("Authorization","Bearer "+this.token);
+        validate.send();
 
         //get the username
         var req = new XMLHttpRequest();
 
         req.onload = function(){
             var s = JSON.parse(this.responseText);
+
             t.username = s.data[0]["display_name"];
-        }
+            if(t.username==null || t.username==undefined){
+                console.log("Could not find username for "+this.responseText);
+            }
+       }
         req.open("GET","https://api.twitch.tv/helix/users");
         req.setRequestHeader("Authorization", "Bearer "+this.token);
         req.setRequestHeader("Client-id","iplrkfjlmtjhhhsdjjg2mw8h8bhxfc")
