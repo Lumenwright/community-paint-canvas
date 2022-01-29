@@ -54,7 +54,7 @@ def reduce_alpha_value(ref, entry_time, key):
     start_polling(lambda:reduce_alpha_value(ref, entry_time, key), FADE_TIME_PER_STEP)
 
 #resolve invoice
-def resolve_invoice(ref):
+def resolve_invoice(ref, key):
     #get the last 10 donations
     header = {"Authorization":"Bearer "+dont_commit.AT}
     r = requests.get("https://tiltify.com/api/v3/campaigns/"+dont_commit.ID+"/donations", headers=header)
@@ -62,23 +62,22 @@ def resolve_invoice(ref):
     donations = d["data"]
 
     #compare response to text in invoice
-    invoice_entries = ref.child(keys.INVOICE_NODE).get()
+    invoice_entry = ref.child(keys.INVOICE_NODE).child(key).get()
     found = False
-    matching_entry =""
+    matching_key =""
 
     for donation in donations:
-        for key in invoice_entries:
-            code = donation["comment"]
-            entry = invoice_entries[key][keys.RESPONSE_NAME]
-            if(entry in code):
-                found = True
-                matching_entry = key
-                break
+        code = donation["comment"]
+        entry = invoice_entry[keys.RESPONSE_NAME]
+        if(entry in code):
+            found = True
+            matching_key = key
+            break
     if(found):
-        resolve(ref, matching_entry)
+        resolve(ref, matching_key)
     else:
         print("invoices: couldn't find any matching donations yet")
-        start_polling(lambda: resolve_invoice(ref), INTERVAL)
+        start_polling(lambda: resolve_invoice(ref, key), INTERVAL)
 
 
 def resolve(ref,matching_entry):

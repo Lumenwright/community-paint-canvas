@@ -32,16 +32,18 @@ except(TypeError):
 # ========= look for invoices to review =================
 try:
     print("checking for outstanding invoices...")
-    invoices = ref.child(keys.INVOICE_NODE).get()
+    invoices = ref.child(keys.INVOICE_NODE).get(shallow=True)
     if(invoices == None):
         raise TypeError("No invoices")
-    if(DEBUG):
-        for entry in ref.child(keys.INVOICE_NODE).get(shallow=True):
-            resolve(ref, entry)
-    else:
-        resolve_invoice(ref)
 except TypeError:
     print("no outstanding invoices")
+finally:    
+    for entry in invoices:
+        if(DEBUG):
+                resolve(ref, entry)
+        else:
+            resolve_invoice(ref, entry)
+
 #========================================================
 
 class Pixels(Resource):

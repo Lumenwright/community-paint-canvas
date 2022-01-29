@@ -75,9 +75,18 @@ var app = new Vue({
         let submission = {pixels:array_sub, text_response:this.textresponse, total_donate:this.totalPixels};
         let json_string = JSON.stringify(submission);
         console.log("sending:" +json_string);
+        let t = this;
+        this.req.onload=function(){
+          //hide the submit button 
+          let sub = document.getElementById("submission_div");
+          sub.style = "display:none;"
+          let confirmation = document.getElementById("submit_link");
+          confirmation.style = "display:block;"
+        }
         this.req.open("POST",pxEndpoint);
         this.req.setRequestHeader("Content-type", "application/json");
-        this.req.send(json_string);   
+        this.req.send(json_string); 
+        
       },
       redraw(){
         console.log("redrawing canvas...");
