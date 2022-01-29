@@ -1,5 +1,4 @@
 import json
-from winreg import EnumKey
 import requests
 import dont_commit
 from datetime import datetime as dt
