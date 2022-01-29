@@ -12,8 +12,8 @@ from enum import Enum
 DATE_FORMAT = "%b%d%y-%H%M%S"
 INTERVAL = 5.0 #seconds
 
-GRACE_TIME = 5 # seconds to wait before fading
-FADE_TIME = 20 #seconds to fade out pixels
+GRACE_TIME = 120 # seconds to wait before fading
+FADE_TIME = 120 #seconds to fade out pixels
 FADE_STEPS = 10 #number of "steps" to fade out pixels
 MAX_ALPHA = 255
 FADE_PER_STEP = math.floor(MAX_ALPHA / FADE_STEPS)

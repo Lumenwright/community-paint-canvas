@@ -2,6 +2,7 @@ const width = 500;
 const height = 500;
 const qEndpoint = "/queue"
 const ivEndpoint = "/invoices"
+const pxEndpoint = "/pixels"
 const reviewEndpoint = "/review"
 const RESPONSE_NAME = "text_response"
 
@@ -10,17 +11,18 @@ var auth = new Vue({
     data : {
         authorized:false,
         status:"Authorizing...",
-        token:""
+        token:"",
+        username:""
     },
     mounted(){
         // Get the access token from the user login from Twitch API
         var hash = document.location.hash.split('&');
         this.token = hash[0].split('=')[1];
-        var username = "";
         var req = new XMLHttpRequest();
+        var t = this;
         req.onload = function(){
             var s = JSON.parse(this.responseText);
-            username = s.data[0]["display_name"];
+            t.username = s.data[0]["display_name"];
         }
         req.open("GET","https://api.twitch.tv/helix/users");
         req.setRequestHeader("Authorization", "Bearer "+this.token);
@@ -31,14 +33,14 @@ var auth = new Vue({
         var t = this;
         req = new XMLHttpRequest();
         req.onload = function(){
-            if(username==""){
+            if(t.username==""){
                 console.log(`Couldn't find user for token:${this.token}`);
             }
             var s = JSON.parse(this.responseText);
             var found = false;
             var list = s["data"]["allow"];
             for(var key in list){
-                if(list[key] == username){
+                if(list[key] == t.username){
                     found = true;
                     break;
                 }
@@ -53,7 +55,8 @@ var auth = new Vue({
     watch:{
         authorized:function(){
             if(this.authorized){
-                this.status = "Welcome!";
+                var s = "Welcome, "+this.username+"!";
+                this.status = s;
                 return;
             }
         }
@@ -65,6 +68,7 @@ var drawing = new Vue({
     data:{
         canvas:null,
         ctx:null,
+        queueCanvas:null,
         currentCanvas:null,
         vueCanvas:null,
         display:"display:none;",
@@ -72,7 +76,9 @@ var drawing = new Vue({
         q:[],
         curr_px_name:null,
         req:null,
-        status:""
+        status:"Waiting for review",
+        colour:"black",
+        entry:null,
     },
     methods:{
         onApprove(){
@@ -92,9 +98,22 @@ var drawing = new Vue({
             var s = JSON.stringify(obj);
             r.send(s);
         },
+        loadCurrentCanvas(){
+            var t = this;
+            var r = new XMLHttpRequest();
+            r.onload=function(){
+                console.log("Pixels received");
+                console.log("Constructing canvas...");
+                var json_obj = JSON.parse(this.responseText);
+                t.currentCanvas = json_obj; 
+            }
+            r.open("GET", pxEndpoint);
+            r.send();
+        },
         // goes to next invoice in queue
         next(){
             if(this.q[this.q.length-1]==null){
+                this.status="No more to review";
                 return;
             }
             this.curr_px_name = this.q.pop();
@@ -104,27 +123,39 @@ var drawing = new Vue({
                 console.log(this.responseText);
                 var json_obj = JSON.parse(this.responseText);
                 this.comment = json_obj[RESPONSE_NAME];
+                this.status = "Waiting for review";
             }
             this.req.open("GET",query);
             this.req.send();
         },
         redraw(){
-            console.log("redrawing canvas...");
+            console.log("drawing existing canvas...")
             var w = this.canvas.width;
-            this.ctx.clearRect(0,0,w, this.canvas.height);
             //this.ctx.putImageData(this.vueCanvas,0,0);
+            var d = this.currentCanvas;
+            for(var entry in d){
+              this.entry = d[entry];
+              this.colour = "black";
+              this.paint();
+            }
+        },
+        drawEntry(){
             var entry = this.curr_px_name;
             console.log("drawing entry: "+entry);
-            e = this.currentCanvas[entry];
-            var colour = `rgba(0, 0, 0, 255)`;
-            this.ctx.fillStyle =colour;
+            this.entry = this.queueCanvas[entry];
+            this.colour = "red";
+            this.paint();
+        },
+        paint(){
+            var w = this.canvas.width;
+            this.ctx.fillStyle =this.colour;
+            var e = this.entry;
             for(var p in e){
                 var n = e[p].num;
                 var x = Math.floor(n%w);
                 var y = Math.floor(n/w);
                 this.ctx.fillRect(x,y,1,1);
-            }          
-        
+            }   
         }
     },
     mounted() {
@@ -143,8 +174,14 @@ var drawing = new Vue({
 
       this.reqPx = new XMLHttpRequest();
       this.reqPx.onload= function(){
-        console.log("Pixels received");
+        console.log("Response received");
         console.log("Constructing canvas...");
+        t.redraw();
+        if(this.responseText==""){
+            t.status = "Nothing to review"
+            console.log(t.status);
+            return;
+        }
         var json_obj = JSON.parse(this.responseText);
         // data for putImageData() which doesn't work
         /*for(var entry in json_obj){
@@ -157,11 +194,12 @@ var drawing = new Vue({
             data[i+3] = 255;
         }*/
         t.vueCanvas = array;
-        t.currentCanvas = json_obj;
+        t.queueCanvas = json_obj;
         for(var entry in json_obj){
             t.q.push(entry);
         }
         t.next();
+        t.loadCurrentCanvas();
       };
       this.reqPx.open("GET", qEndpoint);
       this.reqPx.send();
@@ -171,12 +209,13 @@ var drawing = new Vue({
         curr_px_name:function(){
             console.log("processing next invoice...");
             if(auth.authorized){
-                this.redraw();
+                this.drawEntry();
                 this.display="display:block;";
             }
         },
         status:function(){
             console.log(this.status);
-        }
+        },
+        currentCanvas:function(){this.redraw()}
     }
 })
