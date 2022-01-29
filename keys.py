@@ -16,3 +16,8 @@ RESOLVE_TIME = "resolved_at"
 RESOLVE_HEARTBEAT_TIME = "resolved_heartbeat_time"
 ALPHA_INDEX_NODE = "alphas"
 APPROVED_NAME = "approved"
+
+#review object
+TOKEN_NAME = "token"
+STATUS_NAME = "status"
+ENTRY_NAME = "entry"

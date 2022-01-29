@@ -1,13 +1,22 @@
 from flask import Flask, request
-from flask_restful import Api, reqparse
+from flask_restful import Api
+import requests
 import pixels
 import keys
+import json
+import invoice
 
 #endpoints
 PIXELS = '/pixels'
 CLEAR = '/reset-clear'
 LOGIN = '/login'
 ALPHAS = '/alphas'
+APPROVE = '/review'
+INVOICES = '/invoices'
+QUEUE = '/queue'
+
+#files
+DATA_FILE = "data.json"
 
 #REST API
 app = Flask(__name__)
@@ -46,8 +55,35 @@ def login_script():
 
 @app.route('/data.json')
 def mods():
-    with open("data.json", 'r') as f:
+    with open(DATA_FILE, 'r') as f:
         return f.read()
+
+@app.route(APPROVE, methods=["POST"])
+def approve():
+    s = request.get_json()
+    key = s[keys.ENTRY_NAME]
+    print("processing review status for "+str(s))
+    #get username
+    token = s[keys.TOKEN_NAME]
+    headers={"Authorization":"Bearer "+token, "Client-id":"iplrkfjlmtjhhhsdjjg2mw8h8bhxfc"}
+    r = requests.get("https://api.twitch.tv/helix/users", headers=headers)
+    auth_response = r.json()
+    print("auth response:"+str(auth_response))
+    username = auth_response["data"][0]["display_name"]
+
+    #authenticate username against list of mods
+    with open(DATA_FILE, 'r') as f:
+        d = json.load(f)
+
+    list = d["data"]["allow"]
+    if username in list:
+        #get invoice
+        invoice_ref = pixels.ref.child(keys.INVOICE_NODE).child(key)
+        #change approval status
+        invoice_ref.child(keys.APPROVED_NAME).set(invoice.Approved.APPROVED.value)
+        return "approved", 200
+    else:
+        return "not authorized", 401
 
 @app.route(ALPHAS)
 def get():
@@ -56,10 +92,21 @@ def get():
         a=""
     return a, 200
 
+@app.route(INVOICES+"/<entry>")
+def getInvoice(entry):
+    return {"invoice":entry}, 200
+
 @app.route(LOGIN)
 def login():
     with open("template/login.html", 'r') as f:
         return f.read()
+
+@app.route(QUEUE)
+def getQ():
+    p = pixels.ref.child(keys.Q_NODE).get()
+    if(p==None):
+        return ""
+    return p, 200
 
 @app.route(CLEAR)
 def reset():

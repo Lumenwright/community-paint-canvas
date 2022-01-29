@@ -151,7 +151,8 @@ var app = new Vue({
         console.log("Pixels received");
         console.log("Constructing canvas...");
         var json_obj = JSON.parse(this.responseText);
-        for(var entry in json_obj){
+        // data for putImageData(), which doesn't work
+        /*for(var entry in json_obj){
           var a = t.alphaDict[entry].alpha;
           var p = json_obj[entry];
           for(var px in p)
@@ -160,7 +161,7 @@ var app = new Vue({
             data[i+1] = p[px].g;
             data[i+2] = p[px].b;
             data[i+3] = a;
-        }
+        }*/
         t.vueCanvas = array;
         t.currentCanvas = json_obj
       };

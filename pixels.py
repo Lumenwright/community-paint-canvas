@@ -35,7 +35,11 @@ try:
     invoices = ref.child(keys.INVOICE_NODE).get()
     if(invoices == None):
         raise TypeError("No invoices")
-    resolve_invoice(ref)
+    if(DEBUG):
+        for entry in ref.child(keys.INVOICE_NODE).get(shallow=True):
+            resolve(ref, entry)
+    else:
+        resolve_invoice(ref)
 except TypeError:
     print("no outstanding invoices")
 #========================================================

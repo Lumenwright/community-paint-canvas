@@ -1,17 +1,21 @@
 const width = 500;
 const height = 500;
-const pxEndpoint = "/pixels"
+const qEndpoint = "/queue"
+const ivEndpoint = "/invoices"
+const reviewEndpoint = "/review"
+const RESPONSE_NAME = "text_response"
 
 var auth = new Vue({
     el:"#auth",
     data : {
         authorized:false,
-        status:"Authorizing..."
+        status:"Authorizing...",
+        token:""
     },
     mounted(){
         // Get the access token from the user login from Twitch API
         var hash = document.location.hash.split('&');
-        var token = hash[0].split('=')[1];
+        this.token = hash[0].split('=')[1];
         var username = "";
         var req = new XMLHttpRequest();
         req.onload = function(){
@@ -19,7 +23,7 @@ var auth = new Vue({
             username = s.data[0]["display_name"];
         }
         req.open("GET","https://api.twitch.tv/helix/users");
-        req.setRequestHeader("Authorization", "Bearer "+token);
+        req.setRequestHeader("Authorization", "Bearer "+this.token);
         req.setRequestHeader("Client-id","iplrkfjlmtjhhhsdjjg2mw8h8bhxfc")
         req.send()
 
@@ -28,7 +32,7 @@ var auth = new Vue({
         req = new XMLHttpRequest();
         req.onload = function(){
             if(username==""){
-                console.log(`Couldn't find user for token:${token}`);
+                console.log(`Couldn't find user for token:${this.token}`);
             }
             var s = JSON.parse(this.responseText);
             var found = false;
@@ -63,26 +67,57 @@ var drawing = new Vue({
         ctx:null,
         currentCanvas:null,
         vueCanvas:null,
-        display:"display:none;"
+        display:"display:none;",
+        comment:"",
+        q:[],
+        curr_px_name:null,
+        req:null,
+        status:""
     },
     methods:{
+        onApprove(){
+            this.status = "Approved"
+            var obj = {token:auth.token, status:this.status, entry:this.curr_px_name}
+            var r = new XMLHttpRequest();
+            r.onload=function(){console.log("approve:"+this.responseText)}
+            r.open("POST", reviewEndpoint);
+            r.setRequestHeader("content-type","application/json");
+            var s = JSON.stringify(obj);
+            r.send(s);
+        },
+        // goes to next invoice in queue
+        next(){
+            if(this.q[this.q.length-1]==null){
+                return;
+            }
+            this.curr_px_name = this.q.pop();
+            var query = ivEndpoint+"/"+this.curr_px_name
+            this.req = new XMLHttpRequest();
+            this.req.onload=function(){
+                console.log(this.responseText);
+                var json_obj = JSON.parse(this.responseText);
+                this.comment = json_obj[RESPONSE_NAME];
+            }
+            this.req.open("GET",query);
+            this.req.send();
+        },
         redraw(){
             console.log("redrawing canvas...");
             var w = this.canvas.width;
             this.ctx.clearRect(0,0,w, this.canvas.height);
             //this.ctx.putImageData(this.vueCanvas,0,0);
-            var d = this.currentCanvas;
-            for(var entry in d){
-              e = d[entry];
-              var colour = `rgba(0, 0, 0, ${this.alphaDict[entry].alpha/255})`;
-              this.ctx.fillStyle =colour;
-              for(var p in e){
+            var entry = this.curr_px_name;
+            console.log("drawing entry: "+entry);
+            e = this.currentCanvas[entry];
+            var colour = `rgba(0, 0, 0, 255)`;
+            this.ctx.fillStyle =colour;
+            for(var p in e){
                 var n = e[p].num;
                 var x = Math.floor(n%w);
                 var y = Math.floor(n/w);
                 this.ctx.fillRect(x,y,1,1);
-              }          
-            }
+            }          
+        
         }
     },
     mounted() {
@@ -104,7 +139,8 @@ var drawing = new Vue({
         console.log("Pixels received");
         console.log("Constructing canvas...");
         var json_obj = JSON.parse(this.responseText);
-        for(var entry in json_obj){
+        // data for putImageData() which doesn't work
+        /*for(var entry in json_obj){
           var p = json_obj[entry];
           for(var px in p)
             var i = parseInt(px, 10);
@@ -112,21 +148,28 @@ var drawing = new Vue({
             data[i+1] = p[px].g;
             data[i+2] = p[px].b;
             data[i+3] = 255;
-        }
+        }*/
         t.vueCanvas = array;
-        t.currentCanvas = json_obj
+        t.currentCanvas = json_obj;
+        for(var entry in json_obj){
+            t.q.push(entry);
+        }
+        t.next();
       };
-      this.reqPx.open("GET", pxEndpoint);
+      this.reqPx.open("GET", qEndpoint);
       this.reqPx.send();
       console.log("Retrieving pixels...");
     },
     watch:{
-        vueCanvas:function(){
-            console.log("vue canvas data changed");
-            if(this.authorized){
+        curr_px_name:function(){
+            console.log("processing next invoice...");
+            if(auth.authorized){
                 this.redraw();
                 this.display="display:block;";
             }
+        },
+        status:function(){
+            console.log(this.status);
         }
     }
 })
