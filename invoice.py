@@ -25,7 +25,7 @@ class Approved(Enum):
 
 def make_invoice(ref,total_donate, response, new_pixels):
     s = {
-        keys.RESPONSE_NAME:response.translate(str.maketrans('', '', '!@#$?%&*\{/}><^()":;.,][|\'`~+=-_')),
+        keys.RESPONSE_NAME:response,
      keys.TOTAL_NAME: total_donate, 
      keys.TIME_NAME:dt.now().strftime(DATE_FORMAT), 
      keys.HEARTBEAT_TIME_NAME:time(),
@@ -70,7 +70,7 @@ def resolve_invoice(ref):
         for key in invoice_entries:
             code = donation["comment"]
             entry = invoice_entries[key][keys.RESPONSE_NAME]
-            if(entry==code):
+            if(entry in code):
                 found = True
                 matching_entry = key
                 break
