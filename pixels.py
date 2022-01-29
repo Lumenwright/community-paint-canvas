@@ -54,11 +54,11 @@ class Pixels(Resource):
 
     def post(self):
         dict = request.get_json()
-        make_invoice(ref,dict[keys.TOTAL_NAME],dict[keys.RESPONSE_NAME],dict[keys.PIXELS_NAME])
+        key = make_invoice(ref,dict[keys.TOTAL_NAME],dict[keys.RESPONSE_NAME],dict[keys.PIXELS_NAME])
 
         if(DEBUG):
             for entry in ref.child(keys.INVOICE_NODE).get(shallow=True):
                 resolve(ref, entry)
         else:
-            resolve_invoice(ref)
+            resolve_invoice(ref, key)
             return dict, 200  # return data with 200 OK

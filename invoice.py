@@ -34,6 +34,7 @@ def make_invoice(ref,total_donate, response, new_pixels):
     autoID = ref.child(keys.INVOICE_NODE).push()
     autoID.update(s)
     ref.child(keys.Q_NODE).update({autoID.key:new_pixels})
+    return autoID.key
 
 # change the stored transparency value of each batch of pixels
 # that will be drawn on the canvas
