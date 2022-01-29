@@ -42,7 +42,7 @@ var auth = new Vue({
         req.onload = function(){
             var s = JSON.parse(this.responseText);
 
-            t.username = s.data[0]["display_name"];
+            t.username = s.data[0]["display_name"].toLowerCase();
             if(t.username==null || t.username==undefined){
                 console.log("Could not find username for "+this.responseText);
             }
