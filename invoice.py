@@ -55,10 +55,10 @@ def reduce_alpha_value(ref):
 
     for key in curr_entries:   
         curr_t = time()
-        entry_time = key[keys.TIME_NAME]
+        entry_time = curr_entries[key][keys.TIME_NAME]
         diff = curr_t - entry_time - GRACE_TIME
         print("reducing alpha for entry "+key)
-        print("time difference: "+str(diff))
+        print("from alpha: "+str(curr_entries[key][keys.ALPHA_NAME]))
         
         if(diff > FADE_TIME):
             ref.child(keys.PIXELS_NAME).child(key).delete()
@@ -141,7 +141,8 @@ for each existing drawing, increment the alphas every period until they are 0
 #to be run every INTERVAL while there are invoices
 def resolve_invoice(ref):
     #Get list of current invoices
-    invoices = ref.child(keys.INVOICE_NODE).get(shallow=True)
+    invoices = ref.child(keys.INVOICE_NODE).get()
+
     if(invoices==None):
         print("No invoices")
         return
@@ -149,7 +150,7 @@ def resolve_invoice(ref):
     # if debugging, don't match invoice to comment, just resolve it    
     if(DEBUG):
         for entry in invoices:
-            resolve(ref, entry)
+            resolve(ref, invoices[entry][keys.RESPONSE_NAME])
         return
 
     #get Tiltify authorization and last 10 donations
@@ -163,7 +164,8 @@ def resolve_invoice(ref):
     for entry in invoices:
         for donation in donations:
             code = donation["comment"]
-            if(entry in code):
+            c = invoices[entry][keys.RESPONSE_NAME]
+            if(c in code):
                 matching_keys.append(entry)
                 break
     
@@ -187,7 +189,7 @@ def resolve(ref, key):
     if isApproved == Approved.APPROVED.value or DEBUG:
         print("resolving approved invoice:"+key)
         new_pixels = entry_pixels_ref.get()
-        resolve_submission(ref, new_pixels)
+        resolve_submission(ref, new_pixels,key)
         make_histories(ref,key,entry_ref,entry_pixels_ref)
 
     elif isApproved == Approved.REJECTED.value:
