@@ -8,8 +8,7 @@ import keys
 import firebase_admin
 from firebase_admin import credentials, db
 
-cred = credentials.Certificate(dc.CRED_LOC)
-firebase_admin.initialize_app(cred, {'databaseURL':dc.DB_URL})
+firebase_admin.initialize_app({'databaseURL':dc.DB_URL})
 
 # Get a database reference 
 ref = db.reference()
