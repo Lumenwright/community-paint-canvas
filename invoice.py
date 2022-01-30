@@ -160,12 +160,15 @@ def resolve_invoice(ref):
     donations = d["data"]
 
     #For every invoice, search for a matching donation
+    # where comments match and the drawing is earlier than the donation
     matching_keys =[]
     for entry in invoices:
         for donation in donations:
             code = donation["comment"]
+            time_donate = donation["completedAt"]
             c = invoices[entry][keys.RESPONSE_NAME]
-            if(c in code):
+            t = invoices[entry][keys.HEARTBEAT_TIME_NAME]
+            if(c in code and t < time_donate):
                 matching_keys.append(entry)
                 break
     
@@ -208,13 +211,13 @@ def resolve_submission(ref, new_pixels, key):
     ref.child(keys.ALPHA_INDEX_NODE).child(key).set({keys.TIME_NAME:entry_time, keys.ALPHA_NAME:MAX_ALPHA})
 
 def make_histories(ref,entry, entry_ref, entry_pixels_ref):
-        e = {
-            keys.RESOLVE_TIME:dt.now().strftime(DATE_FORMAT),
-            keys.RESOLVE_HEARTBEAT_TIME:time(),
-            keys.INVOICE_NODE:entry_ref.get()
-            }
-        h = {entry:entry_pixels_ref.get()}
-        ref.child(keys.HISTORY_NODE).update(h)
-        ref.child(keys.INVOICE_HISTORY_NODE).child(entry).set(e)
-        entry_ref.delete() #delete from current invoices
-        entry_pixels_ref.delete() #delete from queue
+    e = {
+        keys.RESOLVE_TIME:dt.now().strftime(DATE_FORMAT),
+        keys.RESOLVE_HEARTBEAT_TIME:time(),
+        keys.INVOICE_NODE:entry_ref.get()
+        }
+    h = {entry:entry_pixels_ref.get()}
+    ref.child(keys.HISTORY_NODE).update(h)
+    ref.child(keys.INVOICE_HISTORY_NODE).child(entry).set(e)
+    entry_ref.delete() #delete from current invoices
+    entry_pixels_ref.delete() #delete from queue

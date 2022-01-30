@@ -1,4 +1,5 @@
 * match donation amount
+* check time of donation is around time of submission
 * make stream view that refreshes automatically
 * change the way the total pixels are counted to the number of mouse move frames and not dependent on colour (and make sure current drawings aren't counted)
 * make tiles and tile system
@@ -15,12 +16,10 @@
 * on exit should delete any remaining invoices
 * donation time > time of submission
 * copy button for description text to Tiltify comment
-* check the comment in the donation *contains* the description text rather than matching exactly
 * separate backgrounds for stream view and user view
 * host on the cloud
 * display current visuals on user view
 * investigate slowness on firefox
-* store the time and x/y coords of every mouse move and recreate the strokes on screen
 * pull and add descriptions to alt text of canvas
 * add "contact if you're having trouble" button
 * database index for comment history sorted by time
