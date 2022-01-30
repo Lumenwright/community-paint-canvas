@@ -97,7 +97,7 @@ def resolve_invoice(ref):
         # if there's a rejected invoice, don't bother looking/waiting for donation
         isApproved = invoices[entry][keys.APPROVED_NAME]
         if isApproved == Approved.REJECTED.value:
-            reject(entry)
+            reject(ref, entry)
             continue
 
         for donation in donations:
