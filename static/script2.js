@@ -31,7 +31,7 @@ var app = new Vue({
       draw(e) {
         if(!this.painting) return;
   
-        this.ctx.lineWidth = 10;
+        this.ctx.lineWidth = this.getRndInteger(5,10);
         this.ctx.lineCap ="round";
         this.ctx.strokeStyle = "red";
         
@@ -73,6 +73,11 @@ var app = new Vue({
         confirmation.style = "display:block;"
         
       },
+      reset(){
+        this.totalPixels=0;
+        this.canvasArray=[];
+        this.redraw();
+      },
       redraw(){
         console.log("redrawing canvas...");
         var w = this.canvas.width;
@@ -82,7 +87,7 @@ var app = new Vue({
           e = d[entry];
           var colour = `rgba(0, 0, 0, ${this.alphaDict[entry].alpha/255})`;
           for(var p in e){
-            this.ctx.lineWidth = 10;
+            this.ctx.lineWidth = this.getRndInteger(5,10);
             this.ctx.lineCap ="round";
             this.ctx.strokeStyle =colour;
             this.ctx.lineTo(e[p]["x"],e[p]["y"]);
@@ -94,6 +99,9 @@ var app = new Vue({
           this.ctx.beginPath();
         }
         this.status="Click and drag to paint!";
+      },
+      getRndInteger(min, max) {
+        return Math.floor(Math.random() * (max - min + 1) ) + min;
       }
     },
   mounted() {
@@ -109,6 +117,7 @@ var app = new Vue({
     this.req = new XMLHttpRequest();
     this.req.onload = function(){
       if(this.responseText==""){
+        t.status="No art to display. Click and drag to paint!";
         console.log("No alphas");
         return;
       }

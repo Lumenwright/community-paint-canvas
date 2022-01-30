@@ -70,6 +70,7 @@ def reduce_alpha_value(ref):
 
 #to be run every INTERVAL while there are invoices
 def resolve_invoice(ref):
+
     #Get list of current invoices
     invoices = ref.child(keys.INVOICE_NODE).get()
 
@@ -96,8 +97,7 @@ def resolve_invoice(ref):
         # if there's a rejected invoice, don't bother looking/waiting for donation
         isApproved = invoices[entry][keys.APPROVED_NAME]
         if isApproved == Approved.REJECTED.value:
-            print("invoice "+entry+" was rejected, storing in history")
-            make_histories(ref,entry,ref.child(keys.INVOICE_NODE).child(entry),ref.child(keys.Q_NODE).child(entry))
+            reject(entry)
             continue
 
         for donation in donations:
@@ -132,12 +132,8 @@ def resolve(ref, key):
         print(new_pixels)
         resolve_submission(ref, new_pixels,key)
         make_histories(ref,key,entry_ref,entry_pixels_ref)
-
     elif isApproved == Approved.REJECTED.value:
-        print("invoice "+key+" was rejected, storing in history")
-        make_histories(ref,key,entry_ref,entry_pixels_ref)
-        ref.child(keys.REJECTED_HISTORY_NODE).update(key)
-       
+        reject(ref, key)
     elif isApproved == Approved.NOT_REVIEWED.value:
         print("found matching invoice "+key+", waiting for moderator approval")
     else:
@@ -161,3 +157,8 @@ def make_histories(ref,entry, entry_ref, entry_pixels_ref):
     ref.child(keys.INVOICE_HISTORY_NODE).child(entry).set(e)
     entry_ref.delete() #delete from current invoices
     entry_pixels_ref.delete() #delete from queue
+
+def reject(ref, entry):
+    print("invoice "+entry+" was rejected, storing in history")
+    make_histories(ref,entry,ref.child(keys.INVOICE_NODE).child(entry),ref.child(keys.Q_NODE).child(entry))
+    ref.child(keys.REJECTED_HISTORY_NODE).update({entry:True})

@@ -177,12 +177,13 @@ var drawing = new Vue({
             this.entry = this.queueCanvas[entry];
             this.colour = "red";
             this.paint();
+            this.ctx.beginPath();
         },
         paint(){
             this.ctx.lineWidth = 10;
             this.ctx.lineCap ="round";
             this.ctx.strokeStyle = this.colour;
-
+            
             var e = this.entry;
             for(var p in e){    
                 this.ctx.lineTo(e[p]["x"],e[p]["y"]);
