@@ -136,6 +136,7 @@ def resolve(ref, key):
     elif isApproved == Approved.REJECTED.value:
         print("invoice "+key+" was rejected, storing in history")
         make_histories(ref,key,entry_ref,entry_pixels_ref)
+        ref.child(keys.REJECTED_HISTORY_NODE).update(key)
        
     elif isApproved == Approved.NOT_REVIEWED.value:
         print("found matching invoice "+key+", waiting for moderator approval")

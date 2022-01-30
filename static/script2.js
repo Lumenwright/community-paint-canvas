@@ -91,8 +91,9 @@ var app = new Vue({
             this.ctx.beginPath();
             this.ctx.moveTo(e[p]["x"],e[p]["y"]);
           }
-          this.ctx.beginPath()
+          this.ctx.beginPath();
         }
+        this.status="Click and drag to paint!";
       }
     },
   mounted() {
