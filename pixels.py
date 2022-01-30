@@ -11,7 +11,7 @@ from firebase_admin import credentials, db
 firebase_admin.initialize_app()
 
 # Get a database reference 
-ref = db.reference()
+ref = db.reference(path=dc.DB_URL)
 ref_pixels = ref.child(keys.PIXELS_NAME)
 ref_queue = ref.child(keys.Q_NODE)
 
