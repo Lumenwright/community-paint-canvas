@@ -123,10 +123,10 @@ def resolve(ref, key):
 
     isApproved = invoice[keys.APPROVED_NAME]
 
-    #if approved or debugging, move the pixels in queue to the canvas
+    #if approved, move the pixels in queue to the canvas
     #else if rejected, move the pixels in queue directly to the history
     #else don't do anything
-    if isApproved == Approved.APPROVED.value or DEBUG:
+    if isApproved == Approved.APPROVED.value:
         print("resolving approved invoice:"+key)
         new_pixels = entry_pixels_ref.get()
         print(new_pixels)

@@ -8,6 +8,7 @@
 * user feedback for clicking in mod view
 * pause button
 * clean up auth tokens etc.
+* change from implicit to explicit oauth for login
 * make reset endpoint restricted - prompt to sign in with Twitch?
 * clear/reset button for mod view
 * save state history and be able to make a gif of it

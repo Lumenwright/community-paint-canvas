@@ -179,15 +179,19 @@ var drawing = new Vue({
             this.paint();
         },
         paint(){
-            var w = this.canvas.width;
-            this.ctx.fillStyle =this.colour;
+            this.ctx.lineWidth = 10;
+            this.ctx.lineCap ="round";
+            this.ctx.strokeStyle = this.colour;
+
             var e = this.entry;
-            for(var p in e){
-                var n = e[p].num;
-                var x = Math.floor(n%w);
-                var y = Math.floor(n/w);
-                this.ctx.fillRect(x,y,1,1);
-            }   
+            for(var p in e){    
+                this.ctx.lineTo(e[p]["x"],e[p]["y"]);
+                this.ctx.stroke();
+            
+                this.ctx.beginPath();
+                this.ctx.moveTo(e[p]["x"],e[p]["y"]);
+            }
+            this.ctx.beginPath();
         }
     },
     mounted() {
