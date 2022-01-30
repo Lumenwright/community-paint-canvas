@@ -186,6 +186,11 @@ var drawing = new Vue({
             
             var e = this.entry;
             for(var p in e){    
+                // if it is a break reset the path
+                if(e[p]==true){
+                    this.beginPath();
+                    continue;
+                }
                 this.ctx.lineTo(e[p]["x"],e[p]["y"]);
                 this.ctx.stroke();
             

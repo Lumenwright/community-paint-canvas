@@ -27,6 +27,7 @@ var app = new Vue({
       finishedPainting() {
         this.painting = false;
         this.ctx.beginPath()
+        this.canvasArray.push({break:true});
       },
       draw(e) {
         if(!this.painting) return;
@@ -87,6 +88,12 @@ var app = new Vue({
           e = d[entry];
           var colour = `rgba(0, 0, 0, ${this.alphaDict[entry].alpha/255})`;
           for(var p in e){
+
+            // if it is a break reset the path
+            if(e[p]==true){
+              this.beginPath();
+              continue;
+            }
             this.ctx.lineWidth = this.getRndInteger(5,10);
             this.ctx.lineCap ="round";
             this.ctx.strokeStyle =colour;
