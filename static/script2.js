@@ -7,28 +7,25 @@ var app = new Vue({
     el: '#app',
     data: {
       message: "Paint Canvas",
-      vueCanvas:null,
-      currentCanvas:null,
+      currentCanvas:null, // reference to db of public drawings
       painting:false,
-      canvas:null,
+      canvas:null, // reference to canvas element
       ctx:null,
       req:null,
       reqPx:null,
-      status:'',
+      status:"Loading...",
       totalPixels:0,
       textresponse:'',
-      canvasArray:null,
+      canvasArray:[], // array that contains the points on the line
       alphaDict:null
     },
     methods: {
       startPainting(e) {
         this.painting = true;
-        //console.log(this.painting)
         this.draw(e)
       },
       finishedPainting() {
         this.painting = false;
-        //console.log(this.painting);
         this.ctx.beginPath()
       },
       draw(e) {
@@ -44,36 +41,18 @@ var app = new Vue({
         this.ctx.beginPath();
         this.ctx.moveTo(e.offsetX,e.offsetY);
   
+        this.canvasArray.push({x:e.offsetX, y:e.offsetY});
       },
       getTotalPixels(){
         this.status = 'Counting...';
-        let imageData = this.ctx.getImageData(0,0,this.canvas.height,this.canvas.width).data;
-        let newPixels = [];
-        let count = 0;
-
-        //console.log(imageData.length);
-        //imageData is a one dimensional dictionary
-        // with values listed as 1:r, 2:g, 3:b, 4:a 5:r, 5:g, 7:b, 8:a etc.
-        // so need to put them into a structure of pixels to count how many pixels
-        let j = 0;
-        for(let i=0; i<imageData.length; i+=4){
-            let px = {num:j, r:imageData[i], g:imageData[i+1], b:imageData[i+2], a:imageData[i+3]};
-            // if it's not the default colour, increase the count
-            if((px.r!=defaultColour.r || px.g!=defaultColour.g || px.b!=defaultColour.b)&&px.a == 255){
-              newPixels.push(px);
-              count++;
-            } 
-            j++;
-        }
-        this.status = 'The total number of pixels is:'
-        //console.log(count);
+        var count = this.canvasArray.length;
+        this.status = 'The total complexity is:'
         this.totalPixels= count;
-        this.canvasArray = newPixels;
       },
       submit(){
         this.status = "Submitting..."
-        let array_sub = this.canvasArray.reduce((a, b)=>(a[b.num.toString()]={"num":b.num, "r":b.r, "g":b.g, "b":b.b, "a":b.a},a),{});     
-        let submission = {pixels:array_sub, text_response:this.textresponse, total_donate:this.totalPixels};
+        var array = this.canvasArray.reduce((a,b,i)=>(a[i]=b,a),{});
+        let submission = {pixels:array, text_response:this.textresponse, total_donate:this.totalPixels};
         let json_string = JSON.stringify(submission);
         console.log("sending:" +json_string);
         let t = this;
@@ -98,20 +77,22 @@ var app = new Vue({
         console.log("redrawing canvas...");
         var w = this.canvas.width;
         this.ctx.clearRect(0,0,w, this.canvas.height);
-        //this.ctx.putImageData(this.vueCanvas,0,0);
         var d = this.currentCanvas;
         for(var entry in d){
           e = d[entry];
           var colour = `rgba(0, 0, 0, ${this.alphaDict[entry].alpha/255})`;
-          this.ctx.fillStyle =colour;
           for(var p in e){
-            var n = e[p].num;
-            var x = Math.floor(n%w);
-            var y = Math.floor(n/w);
-            this.ctx.fillRect(x,y,1,1);
-          }          
+            this.ctx.lineWidth = 10;
+            this.ctx.lineCap ="round";
+            this.ctx.strokeStyle =colour;
+            this.ctx.lineTo(e[p]["x"],e[p]["y"]);
+            this.ctx.stroke();
+        
+            this.ctx.beginPath();
+            this.ctx.moveTo(e[p]["x"],e[p]["y"]);
+          }
         }
-
+        this.ctx.beginPath()
       }
     },
   mounted() {
@@ -146,19 +127,17 @@ var app = new Vue({
       }
       this.debouncedGetCanvas();
     },
-    vueCanvas:function(){
-      console.log("vue canvas data changed");
+    currentCanvas:function(){
+      console.log("canvas data changed");
       this.redraw();
     },
     alphaDict:function(){
       if(this.alphaDict==""){
         console.log("No alphas");
+        this.status = "No new art to display";
         return;
       }
-      //load the state of the canvas and put the data into it
-      var c = this.ctx;
-      var array = c.createImageData(this.canvas.height,this.canvas.width);
-      var data = array.data;
+      //load the state of the canvas
       var t = this;
 
       this.reqPx = new XMLHttpRequest();
@@ -166,18 +145,11 @@ var app = new Vue({
         console.log("Pixels received");
         console.log("Constructing canvas...");
         var json_obj = JSON.parse(this.responseText);
-        // data for putImageData(), which doesn't work
-        /*for(var entry in json_obj){
-          var a = t.alphaDict[entry].alpha;
-          var p = json_obj[entry];
-          for(var px in p)
-            var i = parseInt(px, 10);
-            data[i] = p[px].r;
-            data[i+1] = p[px].g;
-            data[i+2] = p[px].b;
-            data[i+3] = a;
-        }*/
-        t.vueCanvas = array;
+        if(json_obj==undefined || json_obj==null){
+          console.log("Public canvas is empty/undefined");
+          t.status = "No new art to display"
+          return;
+        }
         t.currentCanvas = json_obj
       };
       this.reqPx.open("GET", pxEndpoint);

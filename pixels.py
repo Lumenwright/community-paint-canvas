@@ -14,40 +14,11 @@ firebase_admin.initialize_app(cred, {'databaseURL':dc.DB_URL})
 # Get a database reference 
 ref = db.reference()
 ref_pixels = ref.child(keys.PIXELS_NAME)
+ref_queue = ref.child(keys.Q_NODE)
 
 #Start polling for invoices and pixels (maybe left over)
 start_monitors(ref)
 
-'''
-#========= look for pixels to fade at start ============
-try:
-    print("checking for leftover pixels...")
-    alphas = ref.child(keys.ALPHA_INDEX_NODE).get()
-    if(alphas == None):
-        raise TypeError("No alphas")
-    pixels = ref.child(keys.PIXELS_NAME).get()
-    for key in alphas:
-        reduce_alpha_value(ref, alphas[key][keys.TIME_NAME], key)
-except(TypeError):
-    print("no pixels left from last run")
-
-# ========= look for invoices to review =================
-try:
-    print("checking for outstanding invoices...")
-    invoices = ref.child(keys.INVOICE_NODE).get(shallow=True)
-    if(invoices == None):
-        raise TypeError("No invoices")
-except TypeError:
-    print("no outstanding invoices")
-else:    
-    for entry in invoices:
-        if(DEBUG):
-            resolve(ref, entry)
-        else:
-            resolve_invoice(ref, entry)
-
-#========================================================
-'''
 class Pixels(Resource):
 
     def get(self):
