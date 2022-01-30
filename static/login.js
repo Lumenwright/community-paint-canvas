@@ -9,8 +9,9 @@ const RESPONSE_NAME = "text_response"
 var auth = new Vue({
     el:"#auth",
     data : {
+        validated:false,
         authorized:false,
-        status:"Authorizing...",
+        status:"Logging in...",
         token:"",
         username:""
     },
@@ -18,39 +19,24 @@ var auth = new Vue({
         // Get the access token from the user login from Twitch API
         var hash = document.location.hash.split('&');
         this.token = hash[0].split('=')[1];
-        var req = new XMLHttpRequest();
-        var t = this;
-        req.onload = function(){
-            var s = JSON.parse(this.responseText);
-            t.username = s.data[0]["display_name"];
-        }
-        req.open("GET","https://api.twitch.tv/helix/users");
-        req.setRequestHeader("Authorization", "Bearer "+this.token);
-        req.setRequestHeader("Client-id","iplrkfjlmtjhhhsdjjg2mw8h8bhxfc")
-        req.send()
 
-        // check if the user is on the internal allow list.
         var t = this;
-        req = new XMLHttpRequest();
-        req.onload = function(){
-            if(t.username==""){
-                console.log(`Couldn't find user for token:${this.token}`);
-            }
+
+        //validate the token
+        var validate = new XMLHttpRequest();
+        validate.onload=function(){
+            console.log("validation for token "+t.token+" : "+this.responseText)
             var s = JSON.parse(this.responseText);
-            var found = false;
-            var list = s["data"]["allow"];
-            for(var key in list){
-                if(list[key] == t.username){
-                    found = true;
-                    break;
-                }
+            if(s==null || s==undefined){
+                this.status="Session expired, you need to log in again";
+                return;
             }
-            if(found){
-                t.authorized = true
-            }
+            this.status = "Authorizing...";
+            t.validated=true;
         }
-        req.open("GET","data.json")
-        req.send()
+        validate.open("GET", "https://id.twitch.tv/oauth2/validate");
+        validate.setRequestHeader("Authorization","Bearer "+this.token);
+        validate.send();
     },
     watch:{
         authorized:function(){
@@ -58,6 +44,51 @@ var auth = new Vue({
                 var s = "Welcome, "+this.username+"!";
                 this.status = s;
                 return;
+            }
+            else{
+                this.status = "You can't view this page. Go back to the main page"
+                return;
+            }
+        },
+        validated:function(){
+            if(this.validated){
+                //get the username
+                var req = new XMLHttpRequest();
+                var t = this
+                req.onload = function(){
+                    var s = JSON.parse(this.responseText);
+
+                    t.username = s.data[0]["display_name"].toLowerCase();
+                    if(t.username==null || t.username==undefined){
+                        console.log("Could not find username for token "+t.token);
+                    }
+                }
+                req.open("GET","https://api.twitch.tv/helix/users");
+                req.setRequestHeader("Authorization", "Bearer "+this.token);
+                req.setRequestHeader("Client-id","iplrkfjlmtjhhhsdjjg2mw8h8bhxfc")
+                req.send()
+
+                // check if the user is on the internal allow list.
+                req = new XMLHttpRequest();
+                req.onload = function(){
+                    if(t.username==""){
+                        console.log(`Couldn't find user for token:${this.token}`);
+                    }
+                    var s = JSON.parse(this.responseText);
+                    var found = false;
+                    var list = s["data"]["allow"];
+                    for(var key in list){
+                        if(list[key] == t.username){
+                            found = true;
+                            break;
+                        }
+                    }
+                    if(found){
+                        t.authorized = true
+                    }
+                }
+                req.open("GET","data.json")
+                req.send()
             }
         }
     }
@@ -76,7 +107,7 @@ var drawing = new Vue({
         q:[],
         curr_px_name:null,
         req:null,
-        status:"Waiting for review",
+        status:"Loading...",
         colour:"black",
         entry:null,
     },
@@ -117,13 +148,14 @@ var drawing = new Vue({
                 return;
             }
             this.curr_px_name = this.q.pop();
-            var query = ivEndpoint+"/"+this.curr_px_name
+            var query = ivEndpoint+"/"+this.curr_px_name;
+            var t = this;
             this.req = new XMLHttpRequest();
             this.req.onload=function(){
                 console.log(this.responseText);
                 var json_obj = JSON.parse(this.responseText);
-                this.comment = json_obj[RESPONSE_NAME];
-                this.status = "Waiting for review";
+                t.comment = json_obj[RESPONSE_NAME];
+                t.status = "Waiting for review";
             }
             this.req.open("GET",query);
             this.req.send();
@@ -200,6 +232,7 @@ var drawing = new Vue({
         }
         t.next();
         t.loadCurrentCanvas();
+        t.status="Loaded!"
       };
       this.reqPx.open("GET", qEndpoint);
       this.reqPx.send();

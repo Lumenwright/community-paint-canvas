@@ -1,10 +1,8 @@
 from flask import request
 from flask_restful import Resource
 import dont_commit as dc
-from invoice import make_invoice, reduce_alpha_value, resolve, resolve_invoice
+from invoice import make_invoice, start_monitors
 import keys
-
-DEBUG = True
 
 #firebase auth
 import firebase_admin
@@ -17,6 +15,10 @@ firebase_admin.initialize_app(cred, {'databaseURL':dc.DB_URL})
 ref = db.reference()
 ref_pixels = ref.child(keys.PIXELS_NAME)
 
+#Start polling for invoices and pixels (maybe left over)
+start_monitors(ref)
+
+'''
 #========= look for pixels to fade at start ============
 try:
     print("checking for leftover pixels...")
@@ -32,18 +34,20 @@ except(TypeError):
 # ========= look for invoices to review =================
 try:
     print("checking for outstanding invoices...")
-    invoices = ref.child(keys.INVOICE_NODE).get()
+    invoices = ref.child(keys.INVOICE_NODE).get(shallow=True)
     if(invoices == None):
         raise TypeError("No invoices")
-    if(DEBUG):
-        for entry in ref.child(keys.INVOICE_NODE).get(shallow=True):
-            resolve(ref, entry)
-    else:
-        resolve_invoice(ref)
 except TypeError:
     print("no outstanding invoices")
-#========================================================
+else:    
+    for entry in invoices:
+        if(DEBUG):
+            resolve(ref, entry)
+        else:
+            resolve_invoice(ref, entry)
 
+#========================================================
+'''
 class Pixels(Resource):
 
     def get(self):
@@ -52,11 +56,5 @@ class Pixels(Resource):
 
     def post(self):
         dict = request.get_json()
-        make_invoice(ref,dict[keys.TOTAL_NAME],dict[keys.RESPONSE_NAME],dict[keys.PIXELS_NAME])
-
-        if(DEBUG):
-            for entry in ref.child(keys.INVOICE_NODE).get(shallow=True):
-                resolve(ref, entry)
-        else:
-            resolve_invoice(ref)
-            return dict, 200  # return data with 200 OK
+        key = make_invoice(ref,dict[keys.TOTAL_NAME],dict[keys.RESPONSE_NAME],dict[keys.PIXELS_NAME])
+        return {"key":key}, 200  # return data with 200 OK

@@ -100,7 +100,8 @@ def get():
 
 @app.route(INVOICES+"/<entry>")
 def getInvoice(entry):
-    return {"invoice":entry}, 200
+    s = pixels.ref.child(keys.INVOICE_NODE).child(entry).get()
+    return json.dumps(s), 200
 
 @app.route(LOGIN)
 def login():
