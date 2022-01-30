@@ -168,7 +168,7 @@ def resolve_invoice(ref):
             time_donate = donation["completedAt"]
             c = invoices[entry][keys.RESPONSE_NAME]
             t = invoices[entry][keys.HEARTBEAT_TIME_NAME]
-            if(c in code and t < time_donate):
+            if(c in code and int(t) < int(time_donate)):
                 matching_keys.append(entry)
                 break
     
