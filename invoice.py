@@ -8,7 +8,7 @@ import keys
 import math
 from enum import Enum
 
-DEBUG = True
+DEBUG = False
 
 DATE_FORMAT = "%b%d%y-%H%M%S"
 INTERVAL = 5.0 #seconds
