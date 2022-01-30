@@ -8,12 +8,12 @@ import keys
 import math
 from enum import Enum
 
-DEBUG = False
+DEBUG = True
 
 DATE_FORMAT = "%b%d%y-%H%M%S"
 INTERVAL = 5.0 #seconds
 
-GRACE_TIME = 120 # seconds to wait before fading
+GRACE_TIME = 1200 # seconds to wait before fading
 FADE_TIME = 120 #seconds to fade out pixels
 FADE_STEPS = 10 #number of "steps" to fade out pixels
 MAX_ALPHA = 255
@@ -67,79 +67,10 @@ def reduce_alpha_value(ref):
         elif(diff > FADE_TIME_PER_STEP ):
             fade_amount = math.floor(diff/FADE_TIME_PER_STEP*FADE_PER_STEP)
             ref.child(keys.ALPHA_INDEX_NODE).child(key).child(keys.ALPHA_NAME).set(MAX_ALPHA - fade_amount)
-'''
-#resolve invoice
-def resolve_invoice(ref, key):
-    #get the last 10 donations
-    header = {"Authorization":"Bearer "+dont_commit.AT}
-    r = requests.get("https://tiltify.com/api/v3/campaigns/"+dont_commit.ID+"/donations", headers=header)
-    d = json.loads(r.text)
-    donations = d["data"]
-
-    #compare response to text in invoice
-    invoice_entry = ref.child(keys.INVOICE_NODE).child(key).get()
-    matching_key =""
-
-    for donation in donations:
-        code = donation["comment"]
-        entry = invoice_entry[keys.RESPONSE_NAME]
-        if(entry in code):
-            isFound = True
-            matching_key = key
-            break
-
-
-def resolve(ref,matching_entry):
-    matching_entry_ref =ref.child(keys.INVOICE_NODE).child(matching_entry)
-    matching_entry_pixels_ref = ref.child(keys.Q_NODE).child(matching_entry)
-    def resolve_pixels():
-        print("resolving invoice:"+matching_entry)
-        resolve_submission(ref, matching_entry_pixels_ref.get(), matching_entry)
-        make_histories(ref,matching_entry,matching_entry_ref,matching_entry_pixels_ref)
-
-    invoice = matching_entry_ref.get()
-    if invoice[keys.APPROVED_NAME]==Approved.APPROVED.value:
-        resolve_pixels()
-    elif invoice[keys.APPROVED_NAME]==Approved.NOT_REVIEWED.value:
-        print("found matching invoice "+matching_entry+", waiting for moderator approval")
-    else:
-        print("invoice "+matching_entry+" was rejected, storing in history")
-        make_histories(ref,matching_entry,matching_entry_ref,matching_entry_pixels_ref)
-
-
-def resolve_submission(ref, new_pixels, key):
-    # add pixels to canvas database
-    entry_time = int(time())
-    ref.child(keys.PIXELS_NAME).child(key).update(new_pixels)
-    ref.child(keys.ALPHA_INDEX_NODE).child(key).set({keys.TIME_NAME:entry_time, keys.ALPHA_NAME:MAX_ALPHA})
-    # start a new timer for fading out the pixels
-    start_polling(lambda:reduce_alpha_value(ref,entry_time, key),GRACE_TIME)
-
-def make_histories(ref,matching_entry, matching_entry_ref, matching_entry_pixels_ref):
-        e = {
-            keys.RESOLVE_TIME:dt.now().strftime(DATE_FORMAT),
-            keys.RESOLVE_HEARTBEAT_TIME:time(),
-            keys.INVOICE_NODE:matching_entry_ref.get()
-            }
-        h = {matching_entry:matching_entry_pixels_ref.get()}
-        ref.child(keys.HISTORY_NODE).update(h)
-        ref.child(keys.INVOICE_HISTORY_NODE).child(matching_entry).set(e)
-        matching_entry_ref.delete()
-        matching_entry_pixels_ref.delete()
-'''
-
-'''
-Get list of last 10 donations
-Get list of current invoices
-For each invoice, find all the invoices that match donations
-for each match, check which ones are approved or rejected
-for each approved match, draw it and make histories
-
-for each existing drawing, increment the alphas every period until they are 0
-'''
 
 #to be run every INTERVAL while there are invoices
 def resolve_invoice(ref):
+
     #Get list of current invoices
     invoices = ref.child(keys.INVOICE_NODE).get()
 
@@ -150,7 +81,7 @@ def resolve_invoice(ref):
     # if debugging, don't match invoice to comment, just resolve it    
     if(DEBUG):
         for entry in invoices:
-            resolve(ref, invoices[entry][keys.RESPONSE_NAME])
+            resolve(ref, entry)
         return
 
     #get Tiltify authorization and last 10 donations
@@ -166,8 +97,7 @@ def resolve_invoice(ref):
         # if there's a rejected invoice, don't bother looking/waiting for donation
         isApproved = invoices[entry][keys.APPROVED_NAME]
         if isApproved == Approved.REJECTED.value:
-            print("invoice "+entry+" was rejected, storing in history")
-            make_histories(ref,entry,ref.child(keys.INVOICE_NODE).child(entry),ref.child(keys.Q_NODE).child(entry))
+            reject(entry)
             continue
 
         for donation in donations:
@@ -193,19 +123,17 @@ def resolve(ref, key):
 
     isApproved = invoice[keys.APPROVED_NAME]
 
-    #if approved or debugging, move the pixels in queue to the canvas
+    #if approved, move the pixels in queue to the canvas
     #else if rejected, move the pixels in queue directly to the history
     #else don't do anything
-    if isApproved == Approved.APPROVED.value or DEBUG:
+    if isApproved == Approved.APPROVED.value:
         print("resolving approved invoice:"+key)
         new_pixels = entry_pixels_ref.get()
+        print(new_pixels)
         resolve_submission(ref, new_pixels,key)
         make_histories(ref,key,entry_ref,entry_pixels_ref)
-
     elif isApproved == Approved.REJECTED.value:
-        print("invoice "+key+" was rejected, storing in history")
-        make_histories(ref,key,entry_ref,entry_pixels_ref)
-       
+        reject(ref, key)
     elif isApproved == Approved.NOT_REVIEWED.value:
         print("found matching invoice "+key+", waiting for moderator approval")
     else:
@@ -214,6 +142,7 @@ def resolve(ref, key):
 def resolve_submission(ref, new_pixels, key):
     # add pixels to canvas database
     entry_time = int(time())
+    new_pixels = {i:new_pixels[i] for i in range(0,len(new_pixels))} #convert list to dictionary
     ref.child(keys.PIXELS_NAME).child(key).update(new_pixels)
     ref.child(keys.ALPHA_INDEX_NODE).child(key).set({keys.TIME_NAME:entry_time, keys.ALPHA_NAME:MAX_ALPHA})
 
@@ -228,3 +157,8 @@ def make_histories(ref,entry, entry_ref, entry_pixels_ref):
     ref.child(keys.INVOICE_HISTORY_NODE).child(entry).set(e)
     entry_ref.delete() #delete from current invoices
     entry_pixels_ref.delete() #delete from queue
+
+def reject(ref, entry):
+    print("invoice "+entry+" was rejected, storing in history")
+    make_histories(ref,entry,ref.child(keys.INVOICE_NODE).child(entry),ref.child(keys.Q_NODE).child(entry))
+    ref.child(keys.REJECTED_HISTORY_NODE).update({entry:True})

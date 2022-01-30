@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <link rel='stylesheet' type='text/css' href='style.css'/>
+    <link rel='stylesheet' type='text/css' href='static/style.css'/>
     <title>
       Community Paint Canvas
     </title>
@@ -10,10 +10,12 @@
     <div id="app">
         
       <h2>{{ message }}</h2> 
+      <div class="canvas">
       <canvas @mousedown="startPainting" @mouseup="finishedPainting" @mousemove="draw" id="canvas"></canvas>
+      </div>
       <p>{{ status }}</p>
       <p>{{ totalPixels }}</p>
- 
+      <button id="clear" @click="reset">Clear/Reset</button>
       <div id="submission_div" style="display:block;">
       <form id="submission">
         <label for="text_response">Describe what you drew and copy the text into your Tiltify donation comment:</label>
