@@ -4,6 +4,8 @@
 * make tiles and tile system
 * erase/clear submission button
 * reload/refresh button
+* user feedback for clicking in mod view
+* pause button
 * clean up auth tokens etc.
 * make reset endpoint restricted - prompt to sign in with Twitch?
 * clear/reset button for mod view
