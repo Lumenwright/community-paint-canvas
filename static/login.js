@@ -54,7 +54,7 @@ var auth = new Vue({
             if(this.validated){
                 //get the username
                 var req = new XMLHttpRequest();
-
+                var t = this
                 req.onload = function(){
                     var s = JSON.parse(this.responseText);
 
@@ -69,7 +69,6 @@ var auth = new Vue({
                 req.send()
 
                 // check if the user is on the internal allow list.
-                var t = this;
                 req = new XMLHttpRequest();
                 req.onload = function(){
                     if(t.username==""){

@@ -71,21 +71,27 @@ var app = new Vue({
         this.canvasArray = newPixels;
       },
       submit(){
+        this.status = "Submitting..."
         let array_sub = this.canvasArray.reduce((a, b)=>(a[b.num.toString()]={"num":b.num, "r":b.r, "g":b.g, "b":b.b, "a":b.a},a),{});     
         let submission = {pixels:array_sub, text_response:this.textresponse, total_donate:this.totalPixels};
         let json_string = JSON.stringify(submission);
         console.log("sending:" +json_string);
         let t = this;
         this.req.onload=function(){
-          //hide the submit button 
-          let sub = document.getElementById("submission_div");
-          sub.style = "display:none;"
-          let confirmation = document.getElementById("submit_link");
-          confirmation.style = "display:block;"
+          t.status = "Submitted, waiting for moderation approval"
+        }
+        this.req.onerror=function(){
+          t.status = "An error occurred, please contact Lumenwright for assistance"
         }
         this.req.open("POST",pxEndpoint);
         this.req.setRequestHeader("Content-type", "application/json");
         this.req.send(json_string); 
+        
+        //hide the submit button 
+        let sub = document.getElementById("submission_div");
+        sub.style = "display:none;"
+        let confirmation = document.getElementById("submit_link");
+        confirmation.style = "display:block;"
         
       },
       redraw(){

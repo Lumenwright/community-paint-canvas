@@ -163,6 +163,13 @@ def resolve_invoice(ref):
     # where comments match and the drawing is earlier than the donation
     matching_keys =[]
     for entry in invoices:
+        # if there's a rejected invoice, don't bother looking/waiting for donation
+        isApproved = invoices[entry][keys.APPROVED_NAME]
+        if isApproved == Approved.REJECTED.value:
+            print("invoice "+entry+" was rejected, storing in history")
+            make_histories(ref,entry,ref.child(keys.INVOICE_NODE).child(entry),ref.child(keys.Q_NODE).child(entry))
+            continue
+
         for donation in donations:
             code = donation["comment"]
             time_donate = donation["completedAt"]

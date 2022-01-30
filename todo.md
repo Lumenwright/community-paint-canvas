@@ -26,6 +26,3 @@
 * connect default drawings to bits and channel point redemptions
 
 **Bugs**:
-* can't do multiple invoice entries
-* polling doesn't stop when all invoices are resolved
-* prevent multiple submissions of the same set of pixels
