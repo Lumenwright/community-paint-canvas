@@ -26,5 +26,15 @@
 * add "contact if you're having trouble" button
 * database index for comment history sorted by time
 * connect default drawings to bits and channel point redemptions
+* gif history view
+* fade time adjusting at runtime on moderation
+* manually match entries if needed in moderation view
+* add name into matching
+* make browser source transparent like now playing app
 
 **Bugs**:
+* approval queue if it's not matching still shows up in the mod screen after approval
+* skips approval if the comment is identical to an existing donation
+* have to refresh the login page a bunch of times
+* moderation view undefined bug
+* will match on any empty comment if the drawing comment is empty
