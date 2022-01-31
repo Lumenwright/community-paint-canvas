@@ -83,6 +83,7 @@ var app = new Vue({
         console.log("redrawing canvas...");
         var w = this.canvas.width;
         this.ctx.clearRect(0,0,w, this.canvas.height);
+        this.drawBorder();
         var d = this.currentCanvas;
         for(var entry in d){
           e = d[entry];
@@ -106,6 +107,12 @@ var app = new Vue({
           this.ctx.beginPath();
         }
         this.status="Click and drag to paint!";
+      },
+      drawBorder(){
+        //Draw a border around the canvas
+        this.ctx.strokeWidth = 3;
+        this.ctx.strokeStyle="black";
+        this.ctx.strokeRect(0,0,width,height);
       },
       getRndInteger(min, max) {
         return Math.floor(Math.random() * (max - min + 1) ) + min;

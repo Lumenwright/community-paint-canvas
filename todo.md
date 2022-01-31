@@ -31,6 +31,7 @@
 * manually match entries if needed in moderation view
 * add name into matching
 * make browser source transparent like now playing app
+* add names and comments to mod history
 
 **Bugs**:
 * approval queue if it's not matching still shows up in the mod screen after approval
