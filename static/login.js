@@ -79,7 +79,7 @@ var auth = new Vue({
             console.log(this.status);
         },
         username:function(){
-            
+                var t = this;
                 // check if the user is on the internal allow list.
                 var internal = new XMLHttpRequest();
                 internal.onload = function(){
