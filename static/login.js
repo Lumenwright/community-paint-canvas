@@ -60,7 +60,26 @@ var auth = new Vue({
                 req.setRequestHeader("Authorization", "Bearer "+this.token);
                 req.setRequestHeader("Client-id","iplrkfjlmtjhhhsdjjg2mw8h8bhxfc")
                 req.send()
-
+            }
+        },
+        authorized:function(){
+            if(this.authorized){
+                var s = "Welcome, "+this.username+"!";
+                this.status = s;
+                drawing.authorized = true;
+                drawing.display="display:block;";
+                return;
+            }
+            else{
+                this.status = "You can't view this page. Go back to the main page"
+                return;
+            }
+        },
+        status:function(){
+            console.log(this.status);
+        },
+        username:function(){
+            
                 // check if the user is on the internal allow list.
                 var internal = new XMLHttpRequest();
                 internal.onload = function(){
@@ -79,24 +98,7 @@ var auth = new Vue({
                 }
                 internal.open("GET","data.json")
                 internal.send()
-                this.status = "Checking for authorization...";
-            }
-        },
-        authorized:function(){
-            if(this.authorized){
-                var s = "Welcome, "+this.username+"!";
-                this.status = s;
-                drawing.authorized = true;
-                drawing.display="display:block;";
-                return;
-            }
-            else{
-                this.status = "You can't view this page. Go back to the main page"
-                return;
-            }
-        },
-        status:function(){
-            console.log(this.status);
+                this.status = "Checking for authorization for :"+this.username;
         }
     }
 })
