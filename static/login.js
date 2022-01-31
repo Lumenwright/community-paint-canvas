@@ -175,7 +175,7 @@ var drawing = new Vue({
                 var json_obj = JSON.parse(this.responseText);
                 console.log(json_obj);
                 if(json_obj[APPROVED_NAME]>0){ // if it has been reviewed
-                    this.next();
+                    t.next();
                 }
                 t.comment = json_obj[RESPONSE_NAME];
                 t.drawEntry();
