@@ -3,6 +3,7 @@ const height = 500;
 const pxEndpoint = "/pixels"
 const ivEndpoint = "/invoices"
 const qEndpoint = "/queue"
+const reviewEndpoint = "/review"
 const APPROVED_NAME = "approved"
 const RESPONSE_NAME = "text_response"
 
@@ -170,8 +171,9 @@ var drawing = new Vue({
             req.onload=function(){
                 console.log(this.responseText);
                 var json_obj = JSON.parse(this.responseText);
+                console.log(json_obj);
                 if(json_obj[APPROVED_NAME]>0){ // if it has been reviewed
-                    next();
+                    this.next();
                 }
                 t.comment = json_obj[RESPONSE_NAME];
                 t.drawEntry();
@@ -212,8 +214,29 @@ var drawing = new Vue({
             this.paint();
             this.ctx.beginPath();
         },
-        onApprove(){},
-        onReject(){}
+        onApprove(){
+            this.status = "Approved";
+            this.submit();
+        },
+        onReject(){
+            this.status = "Rejected";
+            this.submit();
+        },
+        submit(){
+            var obj = {token:auth.token, status:this.status, entry:this.curr_px_name}
+            var r = new XMLHttpRequest();
+            r.onload=function(){console.log("approve:"+this.responseText)}
+            r.open("POST", reviewEndpoint);
+            r.setRequestHeader("content-type","application/json");
+            var s = JSON.stringify(obj);
+            r.send(s);
+        },
+        drawBorder(){
+            //Draw a border around the canvas
+            this.ctx.strokeWidth = 3;
+            this.ctx.strokeStyle="black";
+            this.ctx.strokeRect(0,0,width,height);
+          },
     },
     watch:{
         authorized:function(){this.retrieveQueue()},
@@ -229,7 +252,7 @@ var drawing = new Vue({
         // Resize canvas
         this.canvas.height = height;
         this.canvas.width = width;
-
+        this.drawBorder();
         this.loadCurrentCanvas();
   
     },
