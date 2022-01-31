@@ -51,6 +51,7 @@ var auth = new Vue({
                     t.username = s.data[0]["display_name"].toLowerCase();
                     if(t.username==null || t.username==undefined || t.username==""){
                         console.log("Could not find username for token "+t.token);
+                        t.status ="Could not find your Twitch user data";
                     }
                     t.status="Checking "+t.username
                 }
@@ -77,7 +78,7 @@ var auth = new Vue({
                 }
                 internal.open("GET","data.json")
                 internal.send()
-                
+                this.status = "Checking for authorization...";
             }
         },
         authorized:function(){
@@ -93,6 +94,9 @@ var auth = new Vue({
                 return;
             }
         },
+        status:function(){
+            console.log(this.status);
+        }
     }
 })
 var drawing = new Vue({
@@ -127,18 +131,18 @@ var drawing = new Vue({
             r.send();
         },
         redraw(){
-            console.log("Displaying public canvas...");
+            this.status = "Displaying public canvas...";
             var d = this.currentCanvas;
             for(var entry in d){
-                console.log("painting entry "+entry);
+                this.status = "painting entry "+entry;
                 this.entry = d[entry];
                 this.colour = "black";
                 this.paint();
             }
-            this.status = "Public canvas loaded"
+            this.status = "Public canvas loaded";
         },
         paint(){
-            console.log("painting...")
+            this.status = "painting...";
             this.ctx.lineWidth = 10;
             this.ctx.lineCap ="round";
             this.ctx.strokeStyle = this.colour;
@@ -170,6 +174,7 @@ var drawing = new Vue({
                     next();
                 }
                 t.comment = json_obj[RESPONSE_NAME];
+                t.drawEntry();
                 t.status = "Waiting for review";
             }
             req.open("GET",query);
@@ -179,8 +184,8 @@ var drawing = new Vue({
             var t = this;
             var reqPx = new XMLHttpRequest();
             reqPx.onload= function(){
-              console.log("Response received");
-              console.log("Displaying approval queue...");
+              t.status = "Response received";
+              t.status = "Displaying approval queue...";
               if(this.responseText==""){
                   t.status = "Nothing to review"
                   console.log(t.status);
@@ -197,7 +202,15 @@ var drawing = new Vue({
             };
             reqPx.open("GET", qEndpoint);
             reqPx.send();
-            console.log("Retrieving approval queue...");
+            this.status = "Retrieving approval queue..."
+        },
+        drawEntry(){
+            var entry = this.curr_px_name;
+            this.status = "drawing entry: "+entry;
+            this.entry = this.queueCanvas[entry];
+            this.colour = "red";
+            this.paint();
+            this.ctx.beginPath();
         },
         onApprove(){},
         onReject(){}
@@ -207,6 +220,7 @@ var drawing = new Vue({
         currentCanvas:function(){
             this.redraw();
         },
+        status:function(){console.log(this.status)}
     },
     mounted() {
         this.canvas = document.getElementById("canvas");
