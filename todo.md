@@ -26,5 +26,6 @@
 * add "contact if you're having trouble" button
 * database index for comment history sorted by time
 * connect default drawings to bits and channel point redemptions
+* add names and comments to mod history
 
 **Bugs**:
