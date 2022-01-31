@@ -1,5 +1,10 @@
 const width = 500;
 const height = 500;
+const pxEndpoint = "/pixels"
+const ivEndpoint = "/invoices"
+const qEndpoint = "/queue"
+const APPROVED_NAME = "approved"
+const RESPONSE_NAME = "text_response"
 
 var auth = new Vue({
     el:"#auth",
@@ -20,8 +25,8 @@ var auth = new Vue({
         //validate the token
         var validate = new XMLHttpRequest();
         validate.onload=function(){
-            console.log("validation for token "+t.token+" : "+this.responseText)
             var s = JSON.parse(this.responseText);
+            console.log("validation for token "+t.token+" completed");
             if(s==null || s==undefined){
                 t.status="Session expired, you need to log in again";
                 return;
@@ -79,6 +84,8 @@ var auth = new Vue({
             if(this.authorized){
                 var s = "Welcome, "+this.username+"!";
                 this.status = s;
+                drawing.authorized = true;
+                drawing.display="display:block;";
                 return;
             }
             else{
@@ -91,18 +98,125 @@ var auth = new Vue({
 var drawing = new Vue({
     el:"#drawing",
     data:{
+        authorized:false,
         canvas:null,
         ctx:null,
         queueCanvas:null,
         currentCanvas:null,
-        vueCanvas:null,
         display:"display:none;",
         comment:"",
         q:[],
         curr_px_name:null,
-        req:null,
         status:"Loading...",
         colour:"black",
         entry:null,
+    },
+    methods:{
+        loadCurrentCanvas(){
+            var t = this;
+            var r = new XMLHttpRequest();
+            r.onload=function(){
+                console.log("Pixels received");
+                var json_obj = JSON.parse(this.responseText);
+                t.currentCanvas = json_obj; 
+                if(t.currentCanvas==null || t.currentCanvas==[] || t.currentCanvas=={}){
+                    t.status = "No public art to display";
+                }
+            }
+            r.open("GET", pxEndpoint);
+            r.send();
+        },
+        redraw(){
+            console.log("Displaying public canvas...");
+            var d = this.currentCanvas;
+            for(var entry in d){
+                console.log("painting entry "+entry);
+                this.entry = d[entry];
+                this.colour = "black";
+                this.paint();
+            }
+            this.status = "Public canvas loaded"
+        },
+        paint(){
+            console.log("painting...")
+            this.ctx.lineWidth = 10;
+            this.ctx.lineCap ="round";
+            this.ctx.strokeStyle = this.colour;
+            var e = this.entry;
+            for(var p in e){  
+                this.ctx.lineTo(e[p]["x"],e[p]["y"]);
+                this.ctx.stroke();
+            
+                this.ctx.beginPath();
+                this.ctx.moveTo(e[p]["x"],e[p]["y"]);
+            }
+            this.ctx.beginPath();
+            
+        },
+        // goes to next invoice in queue
+        next(){
+            if(this.q[this.q.length-1]==null){
+                this.status="No more to review";
+                return;
+            }
+            this.curr_px_name = this.q.pop();
+            var query = ivEndpoint+"/"+this.curr_px_name;
+            var t = this;
+            var req = new XMLHttpRequest();
+            req.onload=function(){
+                console.log(this.responseText);
+                var json_obj = JSON.parse(this.responseText);
+                if(json_obj[APPROVED_NAME]>0){ // if it has been reviewed
+                    next();
+                }
+                t.comment = json_obj[RESPONSE_NAME];
+                t.status = "Waiting for review";
+            }
+            req.open("GET",query);
+            req.send();
+        },
+        retrieveQueue(){
+            var t = this;
+            var reqPx = new XMLHttpRequest();
+            reqPx.onload= function(){
+              console.log("Response received");
+              console.log("Displaying approval queue...");
+              if(this.responseText==""){
+                  t.status = "Nothing to review"
+                  console.log(t.status);
+                  return;
+              }
+              var json_obj = JSON.parse(this.responseText);
+    
+              t.queueCanvas = json_obj;
+              for(var entry in json_obj){
+                  t.q.push(entry);
+              }
+              t.next();
+      
+            };
+            reqPx.open("GET", qEndpoint);
+            reqPx.send();
+            console.log("Retrieving approval queue...");
+        },
+        onApprove(){},
+        onReject(){}
+    },
+    watch:{
+        authorized:function(){this.retrieveQueue()},
+        currentCanvas:function(){
+            this.redraw();
+        },
+    },
+    mounted() {
+        this.canvas = document.getElementById("canvas");
+        this.ctx = this.canvas.getContext("2d");
+
+        // Resize canvas
+        this.canvas.height = height;
+        this.canvas.width = width;
+
+        this.loadCurrentCanvas();
+  
     },
 })
