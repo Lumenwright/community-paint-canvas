@@ -8,7 +8,7 @@ import keys
 import math
 from enum import Enum
 
-DEBUG = True
+DEBUG = False
 
 DATE_FORMAT = "%b%d%y-%H%M%S"
 INTERVAL = 5.0 #seconds
@@ -81,7 +81,7 @@ def resolve_invoice(ref):
     # if debugging, don't match invoice to comment, just resolve it    
     if(DEBUG):
         for entry in invoices:
-            resolve(ref, entry)
+            resolve(ref, entry,"bypass matching")
         return
 
     #get Tiltify authorization and last 10 donations
@@ -112,10 +112,10 @@ def resolve_invoice(ref):
     print("Found matches:"+str(matching_keys))
     #For each match, check which are approved or rejected
     for matching_entry in matching_keys:
-        resolve(ref, matching_entry)
+        resolve(ref, matching_entry, code)
 
 #resolve a given entry
-def resolve(ref, key):
+def resolve(ref, key, code):
     entry_ref =ref.child(keys.INVOICE_NODE).child(key)
 
     invoice = entry_ref.get()
@@ -136,6 +136,7 @@ def resolve(ref, key):
         reject(ref, key)
     elif isApproved == Approved.NOT_REVIEWED.value:
         print("found matching invoice "+key+", waiting for moderator approval")
+        print(key+": invoice: \""+invoice[keys.RESPONSE_NAME]+"\" vs comment: \""+code+"\"")
     else:
         print("You need to check approval status of entry "+key)
 

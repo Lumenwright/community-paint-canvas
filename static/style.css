@@ -1,6 +1,5 @@
-.pixel {
-    position: absolute;
-    background-color:red;
-    min-width: 1px;
-    min-height: 1px;
+canvas {
+    border-style: solid;
+    border-width: 3px;
+    border-color: black;
 }
