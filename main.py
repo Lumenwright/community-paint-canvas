@@ -29,6 +29,17 @@ def index():
     with open("template/index2.html", 'r') as f:
         s= f.read()
         return s
+        
+@app.route('/stream')
+def stream():
+    with open("template/streamview.html", 'r') as f:
+        return f.read()
+
+@app.route('/streamview.js')
+def streamjs():
+    with open("static/streamview.js", 'r') as f:
+        return f.read()
+
 
 @app.route('/style.css')
 def style():
