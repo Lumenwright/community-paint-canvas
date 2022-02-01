@@ -119,9 +119,11 @@ def resolve_invoice(ref):
             time_donate = donation["completedAt"]
             if((n=="" or n==dono_name) and int(t) < int(time_donate)):
                 if(c =="" and code == ""):
+                    print("a")
                     matching_keys.append(entry)
                     break
-                if(c in code):
+                if(c in code and (c != "" and code != "")):
+                    print("b")
                     matching_keys.append(entry)
                     break
     
