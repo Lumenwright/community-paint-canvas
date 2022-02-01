@@ -89,6 +89,7 @@ def review():
     list = d["data"]["allow"]
     a_name = "Approved"
     r_name = "Rejected"
+    p_name = "Pushed"
     if username in list:
         #get invoice
         invoice_ref = pixels.ref.child(keys.INVOICE_NODE).child(key)
@@ -99,6 +100,12 @@ def review():
         elif(s[keys.STATUS_NAME]==r_name):
             invoice_ref.child(keys.APPROVED_NAME).set(invoice.Approved.REJECTED.value)
             return r_name, 200
+        elif(s[keys.STATUS_NAME]==p_name):
+            invoice_ref.child(keys.APPROVED_NAME).set(invoice.Approved.APPROVED_AND_PUSHED.value)
+            return p_name, 200
+        else:
+            invoice_ref.child(keys.APPROVED_NAME).set(-1)
+            return "needs review", 200
     else:
         return "not authorized", 401
 

@@ -245,7 +245,7 @@ var drawing = new Vue({
             this.onReview();
         },
         onPush(){
-            this.status = "Pushed directly to canvas";
+            this.status = "Pushed";
             this.onReview();
         },
         submit(){
