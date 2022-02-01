@@ -104,8 +104,17 @@ def resolve_invoice(ref):
         t = invoices[entry][keys.HEARTBEAT_TIME_NAME]
         n = str.lower(invoices[entry][keys.NAME_FIELD])
         for donation in donations:
-            code = str.lower(donation["comment"])
-            dono_name = str.lower(donation["name"])
+            
+            if(donation["comment"]=="" or donation["comment"]==None):
+                code = ""
+            else:
+                code = str.lower(donation["comment"])
+
+            if(donation["name"]=="" or donation["name"]==None):
+                dono_name=""
+            else:
+                dono_name = str.lower(donation["name"])
+
             time_donate = donation["completedAt"]
             if((n=="" or n==dono_name) and int(t) < int(time_donate)):
                 if(c =="" and code == ""):
