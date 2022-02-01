@@ -10,7 +10,7 @@
     <div id="auth">
         <p>{{ status }}</p>
     </div>
-    <div id="drawing">
+    <div id="drawing" v-bind:style="display_full">
         <canvas id="canvas" v-bind:style="display_full"></canvas></br>
         <p id="entry_status">{{ status }}</p>
         <div v-bind:style="display">

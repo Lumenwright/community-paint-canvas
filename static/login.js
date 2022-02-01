@@ -98,6 +98,10 @@ var auth = new Vue({
                     if(found){
                         t.authorized = true
                     }
+                    else{
+                        t.authorized= false
+                        t.status = t.username + " is not on the allow list";
+                    }
                 }
                 internal.open("GET","data.json")
                 internal.send()
@@ -300,7 +304,7 @@ var drawing = new Vue({
           },
     },
     watch:{
-        authorized:function(){this.retrieveQueue()},
+        authorized:function(){if(this.authorized){this.retrieveQueue()}},
         currentCanvas:function(){
             this.redraw();
         },
