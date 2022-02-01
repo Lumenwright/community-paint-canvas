@@ -31,13 +31,14 @@ def start_monitors(ref):
     timer = RepeatedTimer(INTERVAL,resolve_invoice, ref)
     a_timer = RepeatedTimer(INTERVAL,reduce_alpha_value, ref)
 
-def make_invoice(ref,total_donate, response, new_pixels):
+def make_invoice(ref,total_donate, response, new_pixels, dono_name):
     s = {
         keys.RESPONSE_NAME:response,
      keys.TOTAL_NAME: total_donate, 
      keys.TIME_NAME:dt.now().strftime(DATE_FORMAT), 
      keys.HEARTBEAT_TIME_NAME:time(),
-     keys.APPROVED_NAME:Approved.NOT_REVIEWED.value
+     keys.APPROVED_NAME:Approved.NOT_REVIEWED.value,
+     keys.NAME_FIELD:dono_name
      }
     autoID = ref.child(keys.INVOICE_NODE).push()
     autoID.update(s)
@@ -104,7 +105,7 @@ def resolve_invoice(ref):
         t = invoices[entry][keys.HEARTBEAT_TIME_NAME]
         n = str.lower(invoices[entry][keys.NAME_FIELD])
         for donation in donations:
-            
+
             if(donation["comment"]=="" or donation["comment"]==None):
                 code = ""
             else:

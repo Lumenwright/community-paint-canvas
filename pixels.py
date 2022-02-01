@@ -33,5 +33,5 @@ class Pixels(Resource):
 
     def post(self):
         dict = request.get_json()
-        key = make_invoice(ref,dict[keys.TOTAL_NAME],dict[keys.RESPONSE_NAME],dict[keys.PIXELS_NAME])
+        key = make_invoice(ref,dict[keys.TOTAL_NAME],dict[keys.RESPONSE_NAME],dict[keys.PIXELS_NAME],dict[keys.NAME_FIELD])
         return {"key":key}, 200  # return data with 200 OK

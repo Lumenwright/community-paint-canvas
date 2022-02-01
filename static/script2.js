@@ -52,7 +52,7 @@ var app = new Vue({
       submit(){
         this.status = "Submitting..."
         var array = this.canvasArray.reduce((a,b,i)=>(a[i]=b,a),{});
-        if(this.dono_name="" || this.dono_name.toLowerCase()=="anon"){
+        if(this.dono_name=="" || this.dono_name.toLowerCase()=="anon"){
           this.dono_name = "Anonymous"
         }
         let submission = {pixels:array, text_response:this.textresponse, total_donate:this.totalPixels, dono_name:this.dono_name};
