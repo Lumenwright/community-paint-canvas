@@ -100,14 +100,20 @@ def resolve_invoice(ref):
             reject(ref, entry)
             continue
 
+        c = str.lower(invoices[entry][keys.RESPONSE_NAME])
+        t = invoices[entry][keys.HEARTBEAT_TIME_NAME]
+        n = str.lower(invoices[entry][keys.NAME_FIELD])
         for donation in donations:
-            code = donation["comment"]
+            code = str.lower(donation["comment"])
+            dono_name = str.lower(donation["name"])
             time_donate = donation["completedAt"]
-            c = invoices[entry][keys.RESPONSE_NAME]
-            t = invoices[entry][keys.HEARTBEAT_TIME_NAME]
-            if(c in code and int(t) < int(time_donate)):
-                matching_keys.append(entry)
-                break
+            if((n=="" or n==dono_name) and int(t) < int(time_donate)):
+                if(c =="" and code == ""):
+                    matching_keys.append(entry)
+                    break
+                if(c in code):
+                    matching_keys.append(entry)
+                    break
     
     print("Found matches:"+str(matching_keys))
     #For each match, check which are approved or rejected

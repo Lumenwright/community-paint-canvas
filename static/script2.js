@@ -11,11 +11,10 @@ var app = new Vue({
       painting:false,
       canvas:null, // reference to canvas element
       ctx:null,
-      req:null,
-      reqPx:null,
       status:"Loading...",
       totalPixels:0,
       textresponse:'',
+      dono_name:"Anonymous",
       canvasArray:[], // array that contains the points on the line
       alphaDict:null
     },
@@ -53,19 +52,23 @@ var app = new Vue({
       submit(){
         this.status = "Submitting..."
         var array = this.canvasArray.reduce((a,b,i)=>(a[i]=b,a),{});
-        let submission = {pixels:array, text_response:this.textresponse, total_donate:this.totalPixels};
+        if(this.dono_name="" || this.dono_name.toLowerCase()=="anon"){
+          this.dono_name = "Anonymous"
+        }
+        let submission = {pixels:array, text_response:this.textresponse, total_donate:this.totalPixels, dono_name:this.dono_name};
         let json_string = JSON.stringify(submission);
         console.log("sending:" +json_string);
         let t = this;
-        this.req.onload=function(){
+        var req = new XMLHttpRequest();
+        req.onload=function(){
           t.status = "Submitted, waiting for moderation approval"
         }
-        this.req.onerror=function(){
+        req.onerror=function(){
           t.status = "An error occurred, please contact Lumenwright for assistance"
         }
-        this.req.open("POST",pxEndpoint);
-        this.req.setRequestHeader("Content-type", "application/json");
-        this.req.send(json_string); 
+        req.open("POST",pxEndpoint);
+        req.setRequestHeader("Content-type", "application/json");
+        req.send(json_string); 
         
         //hide the submit button 
         let sub = document.getElementById("submission_div");
@@ -128,8 +131,8 @@ var app = new Vue({
 
     console.log("Retrieving alphas...");
     var t = this;
-    this.req = new XMLHttpRequest();
-    this.req.onload = function(){
+    var req = new XMLHttpRequest();
+    req.onload = function(){
       if(this.responseText==""){
         t.status="No art to display. Click and drag to paint!";
         console.log("No alphas");
@@ -138,8 +141,8 @@ var app = new Vue({
       t.alphaDict = JSON.parse(this.responseText);
       console.log("Alphas receieved");
     }
-    this.req.open("GET", "alphas");
-    this.req.send();
+    req.open("GET", "alphas");
+    req.send();
 
     // see watched variable alphaDict for canvas drawing
   },
@@ -164,8 +167,8 @@ var app = new Vue({
       //load the state of the canvas
       var t = this;
 
-      this.reqPx = new XMLHttpRequest();
-      this.reqPx.onload= function(){
+      var reqPx = new XMLHttpRequest();
+      reqPx.onload= function(){
         console.log("Pixels received");
         console.log("Constructing canvas...");
         var json_obj = JSON.parse(this.responseText);
@@ -176,8 +179,8 @@ var app = new Vue({
         }
         t.currentCanvas = json_obj
       };
-      this.reqPx.open("GET", pxEndpoint);
-      this.reqPx.send();
+      reqPx.open("GET", pxEndpoint);
+      reqPx.send();
       console.log("Retrieving pixels...");
     }
   },

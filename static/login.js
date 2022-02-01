@@ -6,6 +6,7 @@ const qEndpoint = "/queue"
 const reviewEndpoint = "/review"
 const APPROVED_NAME = "approved"
 const RESPONSE_NAME = "text_response"
+const DONO_NAME = "dono_name"
 
 var auth = new Vue({
     el:"#auth",
@@ -117,6 +118,7 @@ var drawing = new Vue({
         status:"Loading...",
         colour:"black",
         entry:null,
+        dono_name:"Anonymous"
     },
     methods:{
         loadCurrentCanvas(){
@@ -174,10 +176,20 @@ var drawing = new Vue({
                 console.log(this.responseText);
                 var json_obj = JSON.parse(this.responseText);
                 console.log(json_obj);
-                if(json_obj[APPROVED_NAME]>0){ // if it has been reviewed
+                if(json_obj[APPROVED_NAME]>0){ 
+                    // if it has been reviewed,
+                    // and approved,
+                    if(json_obj[APPROVED_NAME]==1){
+                        t.colour = "grey";
+                        t.drawEntry();                        
+                    }
+
                     t.next();
+                    return;
                 }
+                t.dono_name = json_obj[DONO_NAME]
                 t.comment = json_obj[RESPONSE_NAME];
+                this.colour = "red";
                 t.drawEntry();
                 t.status = "Waiting for review";
             }
@@ -212,17 +224,23 @@ var drawing = new Vue({
             var entry = this.curr_px_name;
             this.status = "drawing entry: "+entry;
             this.entry = this.queueCanvas[entry];
-            this.colour = "red";
             this.paint();
             this.ctx.beginPath();
         },
+        onReview(){
+            this.submit();
+            this.ctx.clearRect(0,0,width,height);
+            this.drawBorder;
+            this.redraw();
+            this.next();
+        },
         onApprove(){
             this.status = "Approved";
-            this.submit();
+            this.onReview();
         },
         onReject(){
             this.status = "Rejected";
-            this.submit();
+            this.onReview();
         },
         submit(){
             var obj = {token:auth.token, status:this.status, entry:this.curr_px_name}

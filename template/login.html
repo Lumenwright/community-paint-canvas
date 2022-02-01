@@ -14,6 +14,7 @@
         <canvas id="canvas" v-bind:style="display"></canvas></br>
         <p id="entry_status">{{ status }}</p>
         <div v-bind:style="display">
+            <p id="dono_name">Name: {{ dono_name }}</p>
             <p id="entry_name">Entry: {{ curr_px_name }}</p>
             <p id="entry_comment">Comment: {{ comment }}</p>
             <button class="major_button" id="approve" @click="onApprove">Approve</button>

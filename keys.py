@@ -3,6 +3,7 @@
 PIXELS_NAME = "pixels"
 TOTAL_NAME = "total_donate"
 RESPONSE_NAME = "text_response"
+NAME_FIELD = "dono_name"
 ALPHA_NAME = "alpha"
 INVOICE_NODE = "invoice"
 HISTORY_NODE = "history"

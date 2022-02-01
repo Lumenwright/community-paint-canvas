@@ -6,12 +6,19 @@ import keys
 
 #firebase auth
 import firebase_admin
-from firebase_admin import credentials, db
+from firebase_admin import credentials, db, exceptions
 
-firebase_admin.initialize_app()
+CLOUD = False
 
-# Get a database reference 
-ref = db.reference(url=dc.DB_URL)
+if(CLOUD):
+    firebase_admin.initialize_app()
+    # Get a database reference 
+    ref = db.reference(url=dc.DB_URL)
+else:
+    cred = credentials.Certificate(dc.CRED_LOC)
+    firebase_admin.initialize_app(credential=cred, options={"database-url":dc.DB_URL})
+    ref = db.reference(url=dc.DB_URL)
+
 ref_pixels = ref.child(keys.PIXELS_NAME)
 ref_queue = ref.child(keys.Q_NODE)
 

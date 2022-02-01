@@ -18,7 +18,11 @@
       <button id="clear" @click="reset">Clear/Reset</button>
       <div id="submission_div" style="display:block;">
       <form id="submission">
-        <label for="text_response">Describe what you drew and copy the text into your Tiltify donation comment:</label>
+        <label for="dono_name">Name used in Tiltify donation:</label>
+        <br/>
+        <input id="dono_name" type="text" v-model="dono_name" placeholder="Anonymous">
+        <br/>
+        <label for="text_response">Describe what you drew for people who can't see the canvas. Then copy the text into your Tiltify donation comment:</label>
         <br/>
         <textarea id="text_response" name="text_response" v-model="textresponse" placeholder="A dog"></textarea>
         <br/>
@@ -26,8 +30,9 @@
         <button id='submit_button' name='new_pixels' @click="submit">Submit your drawing!</button>
       </div>
       <div id="submit_link" style="display: none;">
-        <p>Copy this into your donation comment: {{ textresponse }}</p>
-        <p>Donation amount: tbd</p>
+        <p><b>Copy this name into your donation name:</b> {{ dono_name }}</p>
+        <p><b>Copy this into your donation comment:</b> {{ textresponse }}</p>
+        <p>Donation amount: minimum £1</p>
         <p><a href="https://tiltify.com/@lumenwright/midwinter-magic-2022/donate">Donate here</a></p>
       </div>
 
