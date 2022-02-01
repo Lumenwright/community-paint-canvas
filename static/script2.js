@@ -55,7 +55,7 @@ var app = new Vue({
         if(this.dono_name=="" || this.dono_name.toLowerCase()=="anon"){
           this.dono_name = "Anonymous"
         }
-        if(this.text_response=='' || this.text_response==null || this.text_response==undefined){
+        if(this.textresponse=='' || this.textresponse==null || this.textresponse==undefined){
           let d = document.getElementById("status");
           d.style = "color:red;";
           this.status="You need to describe your drawing before you can submit it!";

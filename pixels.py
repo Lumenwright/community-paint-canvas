@@ -8,7 +8,7 @@ import keys
 import firebase_admin
 from firebase_admin import credentials, db, exceptions
 
-CLOUD = True
+CLOUD = False
 
 if(CLOUD):
     firebase_admin.initialize_app()

@@ -180,8 +180,7 @@ var drawing = new Vue({
                 console.log(this.responseText);
                 var json_obj = JSON.parse(this.responseText);
                 if(json_obj[APPROVED_NAME]>0){ 
-                    // if it has been reviewed,
-                    // and approved,
+                    // if it has been reviewed, and in the queue
                     if(json_obj[APPROVED_NAME]==1){
                         t.colour = "grey";
                         t.drawEntry();                        
@@ -243,6 +242,10 @@ var drawing = new Vue({
         },
         onReject(){
             this.status = "Rejected";
+            this.onReview();
+        },
+        onPush(){
+            this.status = "Pushed directly to canvas";
             this.onReview();
         },
         submit(){

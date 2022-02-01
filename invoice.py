@@ -24,6 +24,7 @@ class Approved(Enum):
     NOT_REVIEWED = 0
     APPROVED = 1
     REJECTED = 2
+    APPROVED_AND_PUSHED = 3
 
 # start loop to check for and resolve invoices
 def start_monitors(ref):
@@ -101,6 +102,10 @@ def resolve_invoice(ref):
             reject(ref, entry)
             continue
 
+        # if there's a invoice that skips donation, resolve it immediately
+        if  isApproved == Approved.APPROVED_AND_PUSHED.value:
+            resolve(ref, entry, invoices[entry][keys.RESPONSE_NAME])
+
         c = str.lower(invoices[entry][keys.RESPONSE_NAME])
         t = invoices[entry][keys.HEARTBEAT_TIME_NAME]
         n = str.lower(invoices[entry][keys.NAME_FIELD])
@@ -144,10 +149,9 @@ def resolve(ref, key, code):
     #if approved, move the pixels in queue to the canvas
     #else if rejected, move the pixels in queue directly to the history
     #else don't do anything
-    if isApproved == Approved.APPROVED.value:
+    if isApproved == Approved.APPROVED.value or isApproved == Approved.APPROVED_AND_PUSHED.value:
         print("resolving approved invoice:"+key)
         new_pixels = entry_pixels_ref.get()
-        print(new_pixels)
         resolve_submission(ref, new_pixels,key)
         make_histories(ref,key,entry_ref,entry_pixels_ref)
     elif isApproved == Approved.REJECTED.value:
