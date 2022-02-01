@@ -7,6 +7,8 @@ const reviewEndpoint = "/review"
 const APPROVED_NAME = "approved"
 const RESPONSE_NAME = "text_response"
 const DONO_NAME = "dono_name"
+const DISPLAY_NONE = "display:none;";
+const DISPLAY_BLOCK = "display:block;"
 
 var auth = new Vue({
     el:"#auth",
@@ -68,7 +70,7 @@ var auth = new Vue({
                 var s = "Welcome, "+this.username+"!";
                 this.status = s;
                 drawing.authorized = true;
-                drawing.display="display:block;";
+                drawing.display_full=DISPLAY_BLOCK;
                 return;
             }
             else{
@@ -111,7 +113,8 @@ var drawing = new Vue({
         ctx:null,
         queueCanvas:null,
         currentCanvas:null,
-        display:"display:none;",
+        display_full:DISPLAY_NONE,
+        display:DISPLAY_BLOCK,
         comment:"",
         q:[],
         curr_px_name:null,
@@ -166,6 +169,7 @@ var drawing = new Vue({
         next(){
             if(this.q[this.q.length-1]==null){
                 this.status="No more to review";
+                this.display= DISPLAY_NONE;
                 return;
             }
             this.curr_px_name = this.q.pop();
@@ -175,7 +179,6 @@ var drawing = new Vue({
             req.onload=function(){
                 console.log(this.responseText);
                 var json_obj = JSON.parse(this.responseText);
-                console.log(json_obj);
                 if(json_obj[APPROVED_NAME]>0){ 
                     // if it has been reviewed,
                     // and approved,
@@ -203,8 +206,8 @@ var drawing = new Vue({
               t.status = "Response received";
               t.status = "Displaying approval queue...";
               if(this.responseText==""){
-                  t.status = "Nothing to review"
-                  console.log(t.status);
+                  t.status = "Nothing to review";
+                  t.display = DISPLAY_NONE;
                   return;
               }
               var json_obj = JSON.parse(this.responseText);
