@@ -13,7 +13,7 @@
       <div class="canvas">
       <canvas @mousedown="startPainting" @mouseup="finishedPainting" @mousemove="draw" id="canvas"></canvas>
       </div>
-      <p>{{ status }}</p>
+      <p id="status"><b>{{ status }}</b></p>
       <p>{{ totalPixels }}</p>
       <button id="clear" @click="reset">Clear/Reset</button>
       <div id="submission_div" style="display:block;">

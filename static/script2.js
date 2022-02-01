@@ -55,6 +55,12 @@ var app = new Vue({
         if(this.dono_name=="" || this.dono_name.toLowerCase()=="anon"){
           this.dono_name = "Anonymous"
         }
+        if(this.text_response=='' || this.text_response==null || this.text_response==undefined){
+          let d = document.getElementById("status");
+          d.style = "color:red;";
+          this.status="You need to describe your drawing before you can submit it!";
+          return;
+        }
         let submission = {pixels:array, text_response:this.textresponse, total_donate:this.totalPixels, dono_name:this.dono_name};
         let json_string = JSON.stringify(submission);
         console.log("sending:" +json_string);
