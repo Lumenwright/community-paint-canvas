@@ -21,6 +21,15 @@
             <button class="major_button" id="reject" @click="onReject">Reject</button>
             <button class="major_button" id="push" @click="onPush">Approve and skip donation</button>
         </div>
+        <div v-bind:style="display_select">
+            <label for="entry">Select an entry to view:</label>
+            <select v-model="curr_px_name" name="entry" id="entry" class="form-control">
+
+                <option v-for="e in entries" :key="e" :value="e">{{ e }}</option>
+             
+             </select>
+             <button id="select_entry" @click="onSelect">View entry</button>
+        </div>
     </div>
   </body>
   <script src='vue.js'></script>

@@ -121,7 +121,9 @@ var drawing = new Vue({
         status:"Loading...",
         colour:"black",
         entry:null,
-        dono_name:"Anonymous"
+        dono_name:"Anonymous",
+        display_select:DISPLAY_NONE,
+        entries:[],
     },
     methods:{
         loadCurrentCanvas(){
@@ -163,13 +165,14 @@ var drawing = new Vue({
                 this.ctx.moveTo(e[p]["x"],e[p]["y"]);
             }
             this.ctx.beginPath();
-            
+            this.status="displaying entry: "+this.curr_px_name
         },
         // goes to next invoice in queue
         next(){
             if(this.q[this.q.length-1]==null){
                 this.status="No more to review";
                 this.display= DISPLAY_NONE;
+                this.display_select=DISPLAY_BLOCK;
                 return;
             }
             this.curr_px_name = this.q.pop();
@@ -191,7 +194,7 @@ var drawing = new Vue({
                 }
                 t.dono_name = json_obj[DONO_NAME]
                 t.comment = json_obj[RESPONSE_NAME];
-                this.colour = "red";
+                t.colour = "red";
                 t.drawEntry();
                 t.status = "Waiting for review";
             }
@@ -207,6 +210,7 @@ var drawing = new Vue({
               if(this.responseText==""){
                   t.status = "Nothing to review";
                   t.display = DISPLAY_NONE;
+                  t.display_select = DISPLAY_BLOCK;
                   return;
               }
               var json_obj = JSON.parse(this.responseText);
@@ -214,9 +218,10 @@ var drawing = new Vue({
               t.queueCanvas = json_obj;
               for(var entry in json_obj){
                   t.q.push(entry);
+                  t.entries.push(entry);
               }
               t.next();
-      
+              t.display_select=DISPLAY_BLOCK;
             };
             reqPx.open("GET", qEndpoint);
             reqPx.send();
@@ -248,6 +253,35 @@ var drawing = new Vue({
             this.status = "Pushed";
             this.onReview();
         },
+        onSelect(){
+            this.display = DISPLAY_BLOCK;
+            
+            var query = ivEndpoint+"/"+this.curr_px_name;
+            var t = this;
+            t.ctx.clearRect(0,0,width,height);
+            t.drawBorder();
+            t.redraw();
+            var req = new XMLHttpRequest();
+            req.onload=function(){
+                console.log(this.responseText);
+                var json_obj = JSON.parse(this.responseText);
+                if(json_obj[APPROVED_NAME]==0){
+                    t.colour = "red";
+                }
+                else if(json_obj[APPROVED_NAME]>0){ 
+                    // if it has been reviewed, and in the queue
+                    if(json_obj[APPROVED_NAME]==1){ //approved and in queue
+                        t.colour = "green";                       
+                    };
+                }
+                t.dono_name = json_obj[DONO_NAME]
+                t.comment = json_obj[RESPONSE_NAME];
+                
+                t.drawEntry();
+            }
+            req.open("GET",query);
+            req.send();
+        },
         submit(){
             var obj = {token:auth.token, status:this.status, entry:this.curr_px_name}
             var r = new XMLHttpRequest();
@@ -256,6 +290,7 @@ var drawing = new Vue({
             r.setRequestHeader("content-type","application/json");
             var s = JSON.stringify(obj);
             r.send(s);
+            location.reload();
         },
         drawBorder(){
             //Draw a border around the canvas
