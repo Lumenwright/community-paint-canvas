@@ -22,7 +22,7 @@ var app = new Vue({
         var d = this.currentCanvas;
         for(var entry in d){
           e = d[entry];
-          var colour = `rgba(0, 0, 0, ${this.alphaDict[entry].alpha/255})`;
+          var colour = `rgba(255, 255, 255, ${this.alphaDict[entry].alpha/255})`;
           for(var p in e){
 
             // if it is a break reset the path
