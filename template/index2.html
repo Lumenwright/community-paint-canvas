@@ -18,11 +18,12 @@
       <button id="clear" @click="reset">Clear/Reset</button>
       <div id="submission_div" style="display:block;">
       <form id="submission">
-        <label for="dono_name">Name used in Tiltify donation:</label>
+        <h1 style="color: red;">!!READ CAREFULLY!!</h1>
+        <label for="dono_name">The <b style="color: red;">SAME NAME</b> used in Tiltify donation:</label>
         <br/>
         <input id="dono_name" name="dono_name" v-model="dono_name" placeholder="Anonymous">
         <br/>
-        <label for="text_response">Describe what you drew for people who can't see the canvas. Then copy the text into your Tiltify donation comment:</label>
+        <label for="text_response">Describe what you drew for people who can't see the canvas. <b style="color:red">THIS MUST BE THE SAME AS your Tiltify donation comment</b>:</label>
         <br/>
         <textarea id="text_response" name="text_response" v-model="textresponse" placeholder="A dog"></textarea>
         <br/>
