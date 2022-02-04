@@ -67,7 +67,7 @@ var app = new Vue({
         let t = this;
         var req = new XMLHttpRequest();
         req.onload=function(){
-          t.status = "Submitted, waiting for moderation approval"
+          t.status = "Submitted! Donate below while waiting for moderation approval"
         }
         req.onerror=function(){
           t.status = "An error occurred, please contact Lumenwright for assistance"
