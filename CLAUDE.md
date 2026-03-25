@@ -153,6 +153,18 @@ The Phase 1 test plan is at [rework-plans/rework-tests-plan-2026.md](rework-plan
 
 ---
 
+## Coding Guidelines
+
+1. **Flag anti-patterns first.** If a requested change goes against modern best practices, say so and confirm before implementing. Suggest alternatives that meet the same goal.
+2. **Follow framework conventions.** Use the stack's established patterns (SvelteKit routing, server/client module split, etc.) over custom structures.
+3. **Comments describe flow, not mechanics.** Reading only the comments in a file should give the high-level purpose and flow. Comment on *why* and *where this fits*, not what the code does line-by-line.
+4. **Human-readable over clever.** Prefer clear, explicit code over terse abstractions or micro-optimisations that don't meaningfully improve performance.
+5. **Reuse over duplication. Follow SOLID.** Modularise shared logic, single responsibility per module, avoid copy-paste. Code will be reviewed and extended later.
+6. **Security: flag tradeoffs with severity rating.** Implement best security practices. When there is a meaningful UX tradeoff, surface it with a severity rating and confirm before implementing.
+7. **Keep documentation in sync.** When code changes affect architecture, API contracts, or flows described in CLAUDE.md or the rework plan files, update them in the same pass.
+
+---
+
 ## Known Prototype Limitations / Tech Debt
 
 See `todo.md` for the full backlog. Key items:
