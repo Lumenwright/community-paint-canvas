@@ -455,11 +455,3 @@ Drawing canvas UI has a line width slider (1–15px, default 7). At submission t
 12. Upload to Twitch CDN, test in Sandbox on real channel
 13. Submit Bits products + Extension for Twitch review
 
----
-
-## Critical Files to Reference During Implementation
-
-- [invoice.py](invoice.py) — GRACE_TIME=1200, FADE_TIME=120; archive-before-delete pattern
-- [static/script2.js](static/script2.js) — stroke rendering loop to replace with Path2D + OffscreenCanvas
-- [static/login.js](static/login.js) — mod auth flow and queue workflow to port
-- [data.json](data.json) — 6 moderator usernames to seed into `moderators` table

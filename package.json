@@ -1,0 +1,14 @@
+{
+  "name": "community-paint-canvas",
+  "private": true,
+  "scripts": {
+    "dev": "pnpm -F web dev",
+    "test": "pnpm -F web test",
+    "supabase": "node_modules/.pnpm/supabase@2.84.4/node_modules/supabase/bin/supabase.exe",
+    "db:start": "node_modules/.pnpm/supabase@2.84.4/node_modules/supabase/bin/supabase.exe start",
+    "db:stop": "node_modules/.pnpm/supabase@2.84.4/node_modules/supabase/bin/supabase.exe stop"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": ["esbuild", "supabase"]
+  }
+}

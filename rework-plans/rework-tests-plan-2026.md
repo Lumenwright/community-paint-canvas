@@ -268,6 +268,57 @@ The queue entry moves through these states. Every arrow is an API call. Anything
 | 3 | Mix: 1 row with `expires_at = NULL`, 1 row expired | Only the expired row deleted; NULL row untouched |
 | 4 | Broadcaster fires `POST /api/canvas/reset` when `grace_seconds = 0` | All drawings archived with `status = 'expired'`, `drawings` table empty |
 
+### `POST /api/canvas/reset`
+
+| # | Scenario | Expected |
+|---|----------|----------|
+| 1 | Mod session, 3 live drawings | 200, all 3 deleted from `drawings`, all 3 in `canvas_history` with `status = 'expired'` |
+| 2 | Broadcaster session | 200 — broadcaster has at least mod-level access |
+| 3 | No drawings on canvas | 200, nothing changes, no `canvas_history` rows added |
+| 4 | Mix: 1 live drawing + 2 `pending_review` in queue | Only `drawings` cleared; `queue` rows untouched |
+| 5 | Live drawing with `expires_at = NULL` (never-expire mode) | 200, deleted from `drawings` and archived — reset overrides never-expire |
+| 6 | Regular user session (not a mod) | 403 |
+| 7 | No session | 401 |
+
+> **Open question:** `canvas_history.status` currently only allows `'approved' \| 'rejected' \| 'expired' \| 'cancelled'`. A broadcaster reset is semantically distinct from expiry — decide whether to add `'reset'` to the check constraint or keep using `'expired'` before implementing. This affects test case 1 and 5.
+
+---
+
+### `GET /api/moderators`
+
+| # | Scenario | Expected |
+|---|----------|----------|
+| 1 | Broadcaster session, 3 active mods in DB | 200, array of 3 |
+| 2 | Broadcaster session, no mods | 200, `[]` |
+| 3 | Mod session (not broadcaster) | 403 |
+| 4 | Regular user session | 403 |
+| 5 | No session | 401 |
+
+### `POST /api/moderators`
+
+| # | Scenario | Expected |
+|---|----------|----------|
+| 1 | Broadcaster, valid `{twitch_user_id, username}` | 201, row in `moderators` with `active = true`, `added_by = broadcaster_twitch_user_id` |
+| 2 | Broadcaster, duplicate `twitch_user_id` | 409 |
+| 3 | Broadcaster, missing `username` field | 422 |
+| 4 | Broadcaster, missing `twitch_user_id` field | 422 |
+| 5 | Mod session (not broadcaster) | 403 |
+| 6 | No session | 401 |
+
+### `DELETE /api/moderators`
+
+| # | Scenario | Expected |
+|---|----------|----------|
+| 1 | Broadcaster, existing mod `twitch_user_id` | 200, `moderators.active = false` (soft delete — preserves audit trail) |
+| 2 | Broadcaster, `twitch_user_id` not in table | 404 |
+| 3 | Broadcaster, mod already inactive | 404 (treat as not found) |
+| 4 | Mod session (not broadcaster) | 403 |
+| 5 | No session | 401 |
+
+> **Note:** Soft delete (`active = false`) is assumed over hard delete to preserve the `added_by` audit trail. Confirm this before implementing.
+
+---
+
 ### `POST /api/auth/ext-handoff`
 
 | # | Scenario | Expected |
@@ -277,6 +328,22 @@ The queue entry moves through these states. Every arrow is an API call. Anything
 | 3 | JWT signed with wrong secret | 401 |
 | 4 | JWT with wrong extension `client_id` | 401 |
 | 5 | No Authorization header | 401 |
+
+### `GET /api/auth/callback` and `GET /api/auth/mod-callback`
+
+These routes complete the PKCE flow by exchanging a `code` for a Twitch access token — which requires calling Twitch's token endpoint. This is the second thing we must mock (alongside `bits/confirm` in dev mode). The mock replaces the token exchange function so tests never hit Twitch.
+
+| # | Scenario | Expected |
+|---|----------|----------|
+| 1 | Valid `code` + matching `state`, mock exchange returns token | Redirects to `/` (or `/mod`), sets signed httpOnly session cookie |
+| 2 | Valid flow for mod callback | Redirects to `/mod`, session cookie contains `is_mod = true` |
+| 3 | Missing `code` param | Redirects to login page (no error thrown at client) |
+| 4 | `state` param missing | 400 — CSRF protection, state is required |
+| 5 | `state` param does not match stored value | 400 — CSRF mismatch |
+| 6 | Mock exchange returns an error (e.g. code expired) | Redirects to login page with error param |
+| 7 | After successful callback, `?code=` and `?state=` are stripped from URL | Verify redirect URL is clean |
+
+> **How to mock:** Inject the Twitch token exchange as a dependency into the callback handler (rather than importing it directly). In tests, provide a stub that returns a known fake token. This is the standard pattern for testing OAuth callbacks without network calls.
 
 ---
 
@@ -336,3 +403,10 @@ Each seed function inserts rows directly into Supabase using the service role cl
 - [ ] `grace_seconds = 0` produces `expires_at = NULL` on approval, and the cron never deletes it
 - [ ] `grace_seconds = -1` is rejected by `PATCH /api/settings` with 422
 - [ ] `POST /api/canvas/reset` clears drawings with `expires_at = NULL` just as it clears timed drawings
+- [ ] `POST /api/canvas/reset` does not touch `queue` rows
+- [ ] `GET/POST/DELETE /api/moderators` all return 403 for non-broadcaster sessions
+- [ ] `POST /api/moderators` duplicate `twitch_user_id` returns 409
+- [ ] `DELETE /api/moderators` is a soft delete (`active = false`), not a hard delete
+- [ ] `GET /api/auth/callback` and `GET /api/auth/mod-callback` strip `code`/`state` from the redirect URL
+- [ ] PKCE `state` mismatch returns 400 (CSRF protection verified)
+- [ ] The `canvas_history.status` value used by `POST /api/canvas/reset` is decided and consistent with the schema check constraint

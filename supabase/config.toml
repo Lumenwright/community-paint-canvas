@@ -1,0 +1,49 @@
+# Supabase local dev configuration.
+# Ports are shifted to 44xxx to avoid Windows Hyper-V excluded port range (54274–54373).
+# Run `pnpm db:start` from the workspace root to spin up local Postgres + Realtime.
+
+project_id = "community-paint-canvas"
+
+[api]
+enabled = true
+port = 44321
+schemas = ["public", "graphql_public"]
+extra_search_path = ["public", "extensions"]
+max_rows = 1000
+
+[db]
+port = 44322
+shadow_port = 44320
+major_version = 15
+
+[studio]
+enabled = true
+port = 44323
+api_url = "http://127.0.0.1"
+
+[inbucket]
+enabled = true
+port = 44324
+smtp_port = 44325
+pop3_port = 44326
+
+[storage]
+enabled = true
+file_size_limit = "50MiB"
+
+[auth]
+enabled = true
+site_url = "http://127.0.0.1:3000"
+jwt_expiry = 3600
+enable_signup = true
+enable_anonymous_sign_ins = false
+
+[auth.email]
+enable_signup = true
+double_confirm_changes = true
+enable_confirmations = false
+
+[analytics]
+enabled = false
+port = 44327
+backend = "postgres"
