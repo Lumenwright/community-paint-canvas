@@ -24,6 +24,11 @@ export function computeAlpha(
 	const graceEnd = approvedAt.getTime() + graceSeconds * 1000;
 	const fadeEnd = expiresAt.getTime();
 
+	// Guard against misconfigured grace period that meets or exceeds expiry.
+	// A negative fade window would produce a negative denominator and an out-of-range
+	// globalAlpha value, causing a DOM exception in the rAF render loop.
+	if (graceEnd >= fadeEnd) return now < fadeEnd ? 1.0 : 0.0;
+
 	if (now < graceEnd) return 1.0;
 	if (now >= fadeEnd) return 0.0;
 
