@@ -115,13 +115,24 @@
   }
 
   async function removeMod(twitchUserId: string) {
-    const res = await fetch('/api/moderators', {
-      method: 'DELETE',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ twitch_user_id: twitchUserId })
-    });
-    if (res.ok) {
-      moderators = moderators.filter((m) => m.twitch_user_id !== twitchUserId);
+    modLoading = true;
+    modMessage = '';
+    try {
+      const res = await fetch('/api/moderators', {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ twitch_user_id: twitchUserId })
+      });
+      if (res.ok) {
+        moderators = moderators.filter((m) => m.twitch_user_id !== twitchUserId);
+      } else {
+        modMessage = 'Failed to remove moderator.';
+      }
+    } catch {
+      modMessage = 'Network error. Please try again.';
+    } finally {
+      modLoading = false;
+      setTimeout(() => { modMessage = ''; }, 3000);
     }
   }
 
