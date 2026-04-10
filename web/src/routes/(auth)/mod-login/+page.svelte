@@ -8,6 +8,7 @@
   function errorMessage(code: string | null): string {
     if (!code) return '';
     if (code === 'missing_code') return 'Authorization was cancelled.';
+    if (code === 'unauthorized') return 'You are not a moderator for this channel.';
     return 'Authentication error. Please try again.';
   }
 </script>

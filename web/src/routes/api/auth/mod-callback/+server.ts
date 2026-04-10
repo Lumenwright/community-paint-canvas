@@ -42,6 +42,11 @@ export const GET: RequestHandler = async (event) => {
       isMod = !!data;
     }
 
+    // Non-mod users must not receive a session cookie — redirect before issuing any token.
+    if (!isMod) {
+      throw redirect(302, '/mod-login?error=unauthorized');
+    }
+
     const sessionToken = await createSessionCookie({
       twitch_user_id: user.id,
       username: user.login,
