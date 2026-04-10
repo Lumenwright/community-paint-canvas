@@ -1,0 +1,24 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git -C /c/Users/the-m/Documents/GitHub/community-paint-canvas/.claude/worktrees/agent-a7679c54 rev-parse HEAD)",
+      "Bash(git -C /c/Users/the-m/Documents/GitHub/community-paint-canvas/.claude/worktrees/agent-a7679c54 log --oneline -5)",
+      "Bash(git -C /c/Users/the-m/Documents/GitHub/community-paint-canvas/.claude/worktrees/agent-a7679c54 branch)",
+      "Read(//c/Users/the-m/Documents/GitHub/community-paint-canvas//**)",
+      "Read(//c/Users/the-m/Documents/GitHub/community-paint-canvas/.planning//**)",
+      "Bash(git -C /c/Users/the-m/Documents/GitHub/community-paint-canvas/.claude/worktrees/laughing-payne add web/tests/api/mod-auth.test.ts)",
+      "Bash(git -C /c/Users/the-m/Documents/GitHub/community-paint-canvas/.claude/worktrees/laughing-payne commit -m \"test\\(02-02\\): add Wave 0 mod auth redirect integration tests \\(MOD-01\\):*)",
+      "Bash(npx svelte-check:*)",
+      "Bash(npx svelte-kit:*)",
+      "Bash(node \"$HOME/.claude/get-shit-done/bin/gsd-tools.cjs\" config-get workflow._auto_chain_active)",
+      "Bash(node \"$HOME/.claude/get-shit-done/bin/gsd-tools.cjs\" config-get workflow.auto_advance)",
+      "Bash(npx tsc:*)",
+      "Bash(git -C /c/Users/the-m/Documents/GitHub/community-paint-canvas/.claude/worktrees/laughing-payne log --oneline -6)",
+      "Bash(git -C /c/Users/the-m/Documents/GitHub/community-paint-canvas status --short)",
+      "Bash(git -C /c/Users/the-m/Documents/GitHub/community-paint-canvas add .planning/phases/02-overlay-mod-dashboard/02-02-SUMMARY.md)",
+      "Bash(git -C /c/Users/the-m/Documents/GitHub/community-paint-canvas commit -m \"docs\\(02-02\\): complete mod dashboard plan summary:*)",
+      "Bash(xargs grep:*)",
+      "Bash(node \"$HOME/.claude/get-shit-done/bin/gsd-tools.cjs\" roadmap update-plan-progress \"02\" \"02-02\" completed)"
+    ]
+  }
+}

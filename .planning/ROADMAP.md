@@ -39,7 +39,7 @@
 **Plans**: 2 plans
 
 Plans:
-- [ ] 02-01-PLAN.md -- Overlay canvas with Realtime + alpha fading (OVER-01 through OVER-07)
+- [x] 02-01-PLAN.md -- Overlay canvas with Realtime + alpha fading (OVER-01 through OVER-07)
 - [ ] 02-02-PLAN.md -- Mod dashboard: auth, queue review, broadcaster settings (MOD-01 through MOD-10)
 
 ### Phase 3: Drawing Site
