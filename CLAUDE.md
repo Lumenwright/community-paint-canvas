@@ -29,10 +29,21 @@ web/                      # SvelteKit — drawing site + EBS API + overlay + mod
         auth.ts           # Shared auth guards (requireSession, requireMod, etc.)
       client/
         supabase.ts       # Browser Supabase client (anon key, for Realtime)
+      canvas/
+        StrokeRenderer.ts # Shared stroke rendering — used by overlay, mod preview, Phase 4 StrokePreview
+        computeAlpha.ts   # Client-side alpha fading from approved_at/expires_at timestamps
     routes/
       +page.svelte        # Drawing site (Phase 3)
-      overlay/            # OBS browser source (Phase 2)
-      mod/                # Mod dashboard (Phase 2)
+      overlay/
+        +page.svelte      # OBS browser source — OffscreenCanvas cache + rAF loop + Realtime subscriptions
+      (auth)/
+        mod-login/        # Twitch PKCE login for mods; redirects to /mod if already authenticated
+      mod/
+        +page.server.ts   # Session guard — redirects to /mod-login if not mod/broadcaster
+        +page.svelte      # Queue review UI — one drawing at a time, Next/Previous/Approve/Reject
+        settings/
+          +page.server.ts # Broadcaster-only guard
+          +page.svelte    # Fade config, Bits SKU, mod list management, canvas reset
       api/                # All EBS API routes (Phase 1 complete)
     hooks.server.ts       # Session cookie parsing + CORS headers
     app.d.ts              # SessionData type + App.Locals
@@ -47,7 +58,7 @@ supabase/
   config.toml             # Local dev config (ports shifted to 44xxx for Windows)
   migrations/
     001_initial_schema.sql
-    002_rls_policies.sql
+    002_rls_policies.sql  # RLS policies + Realtime publication for drawings and settings tables
     003_seed_data.sql     # Default settings + moderator usernames from data.json
 
 rework-plans/
