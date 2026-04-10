@@ -15,6 +15,5 @@ ALTER TABLE moderators ENABLE ROW LEVEL SECURITY;
 ALTER TABLE canvas_history ENABLE ROW LEVEL SECURITY;
 
 -- Enable Realtime for overlay (INSERT/DELETE) and settings changes (UPDATE).
--- Run after migrations via Supabase dashboard or CLI:
---   ALTER PUBLICATION supabase_realtime ADD TABLE drawings;
---   ALTER PUBLICATION supabase_realtime ADD TABLE settings;
+ALTER PUBLICATION supabase_realtime ADD TABLE drawings;
+ALTER PUBLICATION supabase_realtime ADD TABLE settings;
