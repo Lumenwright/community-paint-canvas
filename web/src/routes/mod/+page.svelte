@@ -79,11 +79,18 @@
     actionPending = true;
     errorMessage = '';
 
-    const res = await fetch('/api/review', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ entry_id: currentDrawing.entry_id, status: action === 'approve' ? 'approved' : 'rejected' })
-    });
+    let res: Response;
+    try {
+      res = await fetch('/api/review', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ entry_id: currentDrawing.entry_id, status: action === 'approve' ? 'approved' : 'rejected' })
+      });
+    } catch {
+      errorMessage = 'Network error. Please try again.';
+      actionPending = false;
+      return;
+    }
 
     if (!res.ok) {
       errorMessage = `Failed to ${action} drawing. Please try again.`;
