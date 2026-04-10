@@ -26,8 +26,7 @@ export const actions: Actions = {
       httpOnly: true,
       sameSite: 'lax',
       maxAge: 60 * 10,
-      // secure: false for localhost dev; the SvelteKit adapter sets secure in prod
-      secure: false
+      secure: event.url.protocol === 'https:'
     });
     const params = new URLSearchParams({
       client_id: TWITCH_CLIENT_ID,
