@@ -4,9 +4,9 @@
   "scripts": {
     "dev": "pnpm -F web dev",
     "test": "pnpm -F web test",
-    "supabase": "node_modules/.pnpm/supabase@2.84.4/node_modules/supabase/bin/supabase.exe",
-    "db:start": "node_modules/.pnpm/supabase@2.84.4/node_modules/supabase/bin/supabase.exe start",
-    "db:stop": "node_modules/.pnpm/supabase@2.84.4/node_modules/supabase/bin/supabase.exe stop"
+    "supabase": "pnpm exec supabase",
+    "db:start": "pnpm exec supabase start",
+    "db:stop": "pnpm exec supabase stop"
   },
   "pnpm": {
     "onlyBuiltDependencies": ["esbuild", "supabase"]
