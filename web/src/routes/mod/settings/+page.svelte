@@ -53,7 +53,7 @@
         const res = await fetch('/api/settings', {
           method: 'PATCH',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(patch)
+          body: JSON.stringify({ [patch.key]: patch.value })
         });
         if (!res.ok) throw new Error(`Failed to save ${patch.key}`);
       }

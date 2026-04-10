@@ -53,7 +53,7 @@ export const GET: RequestHandler = async (event) => {
       path: '/',
       httpOnly: true,
       sameSite: 'lax',
-      secure: true,
+      secure: event.url.protocol === 'https:',
       maxAge: 60 * 60 * 24 * 7
     });
   } catch (e) {

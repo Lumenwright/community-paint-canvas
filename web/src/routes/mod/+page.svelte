@@ -82,7 +82,7 @@
     const res = await fetch('/api/review', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ entry_id: currentDrawing.entry_id, action })
+      body: JSON.stringify({ entry_id: currentDrawing.entry_id, status: action === 'approve' ? 'approved' : 'rejected' })
     });
 
     if (!res.ok) {
