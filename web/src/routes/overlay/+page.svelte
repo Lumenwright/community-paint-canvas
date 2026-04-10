@@ -183,13 +183,19 @@
 			}
 
 			// Render all existing drawings into the bitmap cache.
+			// Merge rather than replace so any Realtime INSERTs that arrived during
+			// the async fetch are preserved rather than discarded.
 			if (drawingsResult.data) {
 				const entries = await Promise.all(
 					(drawingsResult.data as DrawingRow[]).map((row) =>
 						createCachedDrawing(row, canvas.width, canvas.height)
 					)
 				);
-				bitmaps = new Map(entries);
+				const freshMap = new Map(entries);
+				for (const [id, cached] of bitmaps) {
+					if (!freshMap.has(id)) freshMap.set(id, cached);
+				}
+				bitmaps = freshMap;
 			}
 		})();
 
