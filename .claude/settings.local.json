@@ -18,7 +18,9 @@
       "Bash(git -C /c/Users/the-m/Documents/GitHub/community-paint-canvas add .planning/phases/02-overlay-mod-dashboard/02-02-SUMMARY.md)",
       "Bash(git -C /c/Users/the-m/Documents/GitHub/community-paint-canvas commit -m \"docs\\(02-02\\): complete mod dashboard plan summary:*)",
       "Bash(xargs grep:*)",
-      "Bash(node \"$HOME/.claude/get-shit-done/bin/gsd-tools.cjs\" roadmap update-plan-progress \"02\" \"02-02\" completed)"
+      "Bash(node \"$HOME/.claude/get-shit-done/bin/gsd-tools.cjs\" roadmap update-plan-progress \"02\" \"02-02\" completed)",
+      "Skill(gsd-verify-work)",
+      "Skill(gsd-verify-work:*)"
     ]
   }
 }
