@@ -1,4 +1,6 @@
 # community-paint-canvas
+
+** 2026 rework WIP experiment using Claude/Get Shit Done is in the 2026-rework branch **
  
 Donate to make your art show up: https://tiltify.com/@lumenwright/midwinter-magic-2022
 
